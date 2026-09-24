@@ -22,8 +22,8 @@ import { ScrollAnimationService } from '../../services/scroll-animation.service'
         <div class="intro-grid">
           <div class="intro-content" #animateEl>
             <h2>Who We Are</h2>
-            <p>Kapso Solutions is a forward-thinking IT company dedicated to delivering exceptional digital solutions. Founded with a vision to bridge the gap between technology and business success, we've grown into a trusted partner for companies worldwide.</p>
-            <p>Our team of skilled developers, designers, and strategists work collaboratively to create solutions that not only meet but exceed expectations.</p>
+            <p>Kapso Solutions is a premier digital technology and automation partner specializing in official WhatsApp Business automation, guaranteed Meta business verification, bespoke website and mobile application engineering, high-availability cloud architecture, and ROI-driven ad campaigns.</p>
+            <p>Our dedicated team empowers businesses worldwide to build undeniable digital credibility, streamline operations with automated conversational intelligence, and maximize customer acquisition through high-performance digital marketing.</p>
           </div>
           <div class="intro-image" #animateEl>
             <img src="/about.png" alt="About Kapso Solutions" class="about-img">

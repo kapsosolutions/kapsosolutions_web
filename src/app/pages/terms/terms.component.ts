@@ -149,8 +149,8 @@ import { ScrollAnimationService } from '../../services/scroll-animation.service'
             <h2>13. Contact Information</h2>
             <p>For questions about these Terms & Conditions:</p>
             <ul>
-              <li>Email: <a href="mailto:kapsosolutions@gmail.com">info&#64;kapsosolutions.com</a></li>
-              <li>Phone: <a href="tel:+919440203095">+91 9440203095</a></li>
+              <li>Email: <a href="mailto:contact@kapsosolutions.com">contact&#64;kapsosolutions.com</a></li>
+              <li>Phone: <a href="tel:+917816012002">+91 7816012002</a></li>
               <li>Address: Andhra Pradesh, India</li>
             </ul>
           </div>

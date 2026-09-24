@@ -19,10 +19,10 @@ import { ScrollAnimationService } from '../../services/scroll-animation.service'
         <div class="hero-content" #animateEl>
           <div class="hero-badge">
             <span class="badge-dot"></span>
-            AI-Powered Solutions
+            Kapso Solutions • Digital &amp; Automation Leaders
           </div>
-          <h1>We Build <span class="highlight">Intelligent</span> Digital Experiences</h1>
-          <p>From AI automation to web &amp; app development, WhatsApp bots to Meta Business — we engineer the future of your business.</p>
+          <h1><span class="highlight">Kapso Solutions</span> — WhatsApp Automation, Meta Verification &amp; Tech Engineering</h1>
+          <p>Empowering businesses with official WhatsApp Automation, guaranteed Meta Business Verification, high-converting Websites &amp; Mobile Apps, secure Cloud Services, and ROI-driven Ad Campaigns.</p>
           <div class="hero-buttons">
             <a routerLink="/services" class="btn-primary">
               <span>Explore Services</span>
@@ -31,7 +31,7 @@ import { ScrollAnimationService } from '../../services/scroll-animation.service'
             <a routerLink="/contact" class="btn-secondary">Get in Touch</a>
           </div>
           <div class="hero-trust">
-            <span class="trust-label">Trusted by businesses worldwide</span>
+            <span class="trust-label">Kapso Solutions • Trusted Technology Partner</span>
           </div>
         </div>
 
@@ -66,8 +66,8 @@ import { ScrollAnimationService } from '../../services/scroll-animation.service'
     <section class="services-stacked">
       <div class="container">
         <div class="section-header" #animateEl>
-          <h2 class="section-title">What We Do</h2>
-          <p class="section-subtitle">Comprehensive IT solutions tailored to your business needs</p>
+          <h2 class="section-title">What We Do at Kapso Solutions</h2>
+          <p class="section-subtitle">Industry-leading WhatsApp automation, Meta verification, custom web &amp; apps, cloud architecture, and high-ROI campaigns</p>
         </div>
         
         <div class="stacked-cards-container">
@@ -98,9 +98,9 @@ import { ScrollAnimationService } from '../../services/scroll-animation.service'
     <section class="cta-section">
       <div class="container">
         <div class="cta-content" #animateEl>
-          <h2>Ready to Start Your Project?</h2>
-          <p>Let's discuss how we can help transform your ideas into reality.</p>
-          <a routerLink="/contact" class="btn-primary">Contact Us Today</a>
+          <h2>Ready to Scale With Kapso Solutions?</h2>
+          <p>Get in touch with our team for WhatsApp automation, Meta verification, custom software, cloud architecture, or targeted campaigns.</p>
+          <a routerLink="/contact" class="btn-primary">Contact Kapso Solutions</a>
         </div>
       </div>
     </section>
@@ -129,25 +129,25 @@ export class HomeComponent implements AfterViewInit, OnInit, OnDestroy {
 
   // Hologram passing icons
   hologramIcons = [
-    { class: 'fa-brands fa-meta', color: 'rgb(0, 92, 255)' },
     { class: 'fa-brands fa-whatsapp', color: '#25D366' },
+    { class: 'fa-brands fa-meta', color: 'rgb(0, 92, 255)' },
     { class: 'fa-solid fa-globe', color: '#3b82f6' },
-    { class: 'fa-solid fa-database', color: '#f29111' },
+    { class: 'fa-solid fa-cloud', color: '#0ea5e9' },
+    { class: 'fa-solid fa-bullhorn', color: '#f59e0b' },
+    { class: 'fa-solid fa-mobile-screen-button', color: '#a855f7' },
     { class: 'fa-brands fa-angular', color: '#f40f52' },
     { class: 'fa-brands fa-react', color: '#61dafb' },
-    { class: 'fa-brands fa-python', color: '#3776ab' },
-    { class: 'fa-brands fa-bots', color: '#10b981' },
-    { class: 'fa-brands fa-node', color: '#339933' },
-    { class: 'fa-solid fa-network-wired', color: '#a855f7' }
+    { class: 'fa-brands fa-google', color: '#ea4335' },
+    { class: 'fa-brands fa-python', color: '#3776ab' }
   ];
 
   services = [
-    { icon: 'fa-solid fa-globe', title: 'Web Development', description: 'Modern, responsive websites built with the latest technologies.', featured: true, highlighted: false, color: '#3b82f6' },
-    { icon: 'fa-solid fa-mobile-screen-button', title: 'App Development', description: 'Native and cross-platform mobile applications.', featured: false, highlighted: true, color: '#a855f7' },
-    { icon: 'fa-solid fa-cart-shopping', title: 'E-commerce', description: 'Complete online store solutions to grow your business.', featured: true, highlighted: false, color: '#ec4899' },
-    { icon: 'fa-solid fa-store', title: 'Local Business Software', description: 'Custom software for local business operations.', featured: false, highlighted: true, color: '#f59e0b' },
-    { icon: 'fa-solid fa-robot', title: 'AI Chatbots', description: 'Intelligent chatbots for 24/7 customer support.', featured: true, highlighted: false, color: '#10b981' },
-    { icon: 'fa-solid fa-bolt', title: 'Automation', description: 'Streamline your workflows with smart automation.', featured: false, highlighted: true, color: '#00d8ff' }
+    { icon: 'fa-brands fa-whatsapp', title: 'WhatsApp Automation', description: 'Official WhatsApp Business API integration, AI chatbots, automated broadcasts, and CRM sync to multiply customer conversions.', featured: true, highlighted: false, color: '#25D366' },
+    { icon: 'fa-brands fa-meta', title: 'Meta Business Verification', description: 'Guaranteed Meta Business Manager verification, official green tick badge assistance, and verified business partner setup.', featured: false, highlighted: true, color: '#0064e0' },
+    { icon: 'fa-solid fa-globe', title: 'Website Development', description: 'High-speed, SEO-first responsive websites, progressive web applications (PWAs), and scalable custom web portals.', featured: true, highlighted: false, color: '#3b82f6' },
+    { icon: 'fa-solid fa-mobile-screen-button', title: 'Mobile App Development', description: 'Native iOS & Android mobile apps and cross-platform solutions built for high user engagement and smooth performance.', featured: false, highlighted: true, color: '#a855f7' },
+    { icon: 'fa-solid fa-cloud', title: 'Cloud Services & DevOps', description: 'End-to-end cloud computing, AWS, Google Cloud & Azure infrastructure, CI/CD automation, and secure hosting.', featured: true, highlighted: false, color: '#0ea5e9' },
+    { icon: 'fa-solid fa-bullhorn', title: 'Ads & Campaign Marketing', description: 'High-ROI Meta (Facebook & Instagram) ads, Google Ads PPC campaigns, targeted audience segmentation, and lead generation.', featured: false, highlighted: true, color: '#f59e0b' }
   ];
 
   constructor(

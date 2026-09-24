@@ -25,10 +25,10 @@ import { RouterLink } from '@angular/router';
           </div>
           <div class="footer-links">
             <h4>Services</h4>
-            <a routerLink="/services">Web Development</a>
-            <a routerLink="/services">App Development</a>
-            <a routerLink="/services">AI & ML Solutions</a>
-            <a routerLink="/services">Automation</a>
+            <a routerLink="/services">WhatsApp Automation</a>
+            <a routerLink="/services">Meta Verification</a>
+            <a routerLink="/services">Web &amp; App Development</a>
+            <a routerLink="/services">Cloud &amp; Ad Campaigns</a>
           </div>
           <div class="footer-links">
             <h4>Legal</h4>
@@ -38,8 +38,8 @@ import { RouterLink } from '@angular/router';
           </div>
           <div class="footer-links contact-links">
             <h4>Contact</h4>
-            <a href="https://mail.google.com/mail/?view=cm&to=kapsosolutions@gmail.com" target="_blank"><span class="material-icons">email</span> info&#64;kapsosolutions.com</a>
-            <a href="tel:+919440203095"><span class="material-icons">phone</span> +91 9440203095</a>
+            <a href="https://mail.google.com/mail/?view=cm&to=contact@kapsosolutions.com" target="_blank"><span class="material-icons">email</span> contact&#64;kapsosolutions.com</a>
+            <a href="tel:+917816012002"><span class="material-icons">phone</span> +91 7816012002</a>
             <p><span class="material-icons">location_on</span> Andhra Pradesh, India</p>
           </div>
         </div>

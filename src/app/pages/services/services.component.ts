@@ -11,8 +11,8 @@ import { ScrollAnimationService } from '../../services/scroll-animation.service'
     <section class="page-hero">
       <div class="container">
         <div class="hero-content" #animateEl>
-          <h1>Our <span class="highlight">Services</span></h1>
-          <p>Comprehensive IT solutions to power your digital transformation</p>
+          <h1>Kapso Solutions <span class="highlight">Services</span></h1>
+          <p>WhatsApp Automation, Meta Verification, Web, Apps, Cloud &amp; High-ROI Campaigns</p>
         </div>
       </div>
     </section>
@@ -39,9 +39,9 @@ import { ScrollAnimationService } from '../../services/scroll-animation.service'
     <section class="cta-section">
       <div class="container">
         <div class="cta-content" #animateEl>
-          <h2>Ready to Get Started?</h2>
-          <p>Let's discuss your project and find the perfect solution for your needs.</p>
-          <a routerLink="/contact" class="btn-primary">Contact Us</a>
+          <h2>Ready to Scale With Kapso Solutions?</h2>
+          <p>Let's discuss your project and implement the ideal digital technology and automation solution.</p>
+          <a routerLink="/contact" class="btn-primary">Contact Us Today</a>
         </div>
       </div>
     </section>
@@ -69,7 +69,7 @@ import { ScrollAnimationService } from '../../services/scroll-animation.service'
       margin-bottom: 16px;
       color: white;
     }
-    .highlight { color: white; }
+    .highlight { color: #25D366; }
     .page-hero p {
       font-size: 1.2rem;
       color: rgba(255, 255, 255, 0.9);
@@ -170,40 +170,40 @@ export class ServicesComponent implements AfterViewInit {
 
   services = [
     {
+      icon: 'forum',
+      title: 'WhatsApp Automation',
+      description: 'Supercharge customer engagement and conversions with official WhatsApp Business API integration, AI automated chatbots, smart broadcasting, and CRM synchronization.',
+      features: ['Official WhatsApp Business API', 'AI Conversational Chatbots', 'Automated Lead Nurturing', 'Broadcast & Notification Campaigns']
+    },
+    {
+      icon: 'verified',
+      title: 'Meta Business Verification',
+      description: 'Fast, guaranteed Meta Business Manager verification. We guide your organization through documentation, compliance, and securing the verified green tick badge.',
+      features: ['Meta Business Manager Verification', 'WhatsApp Official Green Tick', 'Facebook & Instagram Verification', 'Compliance & Policy Guidance']
+    },
+    {
       icon: 'language',
-      title: 'Web Development',
-      description: 'We create stunning, responsive websites that deliver exceptional user experiences and drive business results.',
-      features: ['Custom Web Applications', 'Progressive Web Apps', 'CMS Development', 'API Integration']
+      title: 'Website Development',
+      description: 'Custom, blazing-fast responsive websites and web applications built with modern frameworks, high-ranking SEO architecture, and conversion-focused UI/UX.',
+      features: ['Custom Web Applications', 'SEO & Speed Optimization', 'Progressive Web Apps (PWA)', 'E-Commerce & Payment Portals']
     },
     {
       icon: 'smartphone',
-      title: 'App Development',
-      description: 'Native and cross-platform mobile applications designed to engage users and grow your business.',
-      features: ['iOS & Android Apps', 'Cross-platform Development', 'UI/UX Design', 'App Maintenance']
+      title: 'Mobile App Development',
+      description: 'Feature-rich native and cross-platform mobile apps for iOS and Android that captivate users, streamline workflows, and scale with your business.',
+      features: ['iOS & Android App Engineering', 'Cross-Platform Flutter & React', 'Intuitive UI/UX Design', 'API & Cloud Backend Integration']
     },
     {
-      icon: 'shopping_cart',
-      title: 'E-commerce',
-      description: 'Complete e-commerce solutions to help you sell online and grow your business globally.',
-      features: ['Online Stores', 'Payment Integration', 'Inventory Management', 'Order Tracking']
+      icon: 'cloud',
+      title: 'Cloud Services & DevOps',
+      description: 'Robust cloud infrastructure architecture and DevOps pipelines on AWS, Google Cloud, and Azure for 99.99% uptime, scalability, and airtight security.',
+      features: ['AWS, GCP & Azure Architecture', 'Cloud Migration & Hosting', 'CI/CD Automation & Docker', 'Cloud Security & Monitoring']
     },
     {
-      icon: 'store',
-      title: 'Local Business Software',
-      description: 'Custom software solutions designed specifically for local businesses to streamline operations.',
-      features: ['POS Systems', 'Booking Systems', 'Customer Management', 'Billing & Invoicing']
-    },
-    {
-      icon: 'smart_toy',
-      title: 'AI Chatbots',
-      description: 'Intelligent chatbots that provide 24/7 customer support and automate conversations.',
-      features: ['Customer Support Bots', 'Lead Generation', 'FAQ Automation', 'Multi-platform Integration']
-    },
-    {
-      icon: 'bolt',
-      title: 'Automation Solutions',
-      description: 'Streamline your operations with intelligent automation that saves time and reduces errors.',
-      features: ['Workflow Automation', 'RPA Solutions', 'Integration Services', 'Process Optimization']
+      icon: 'campaign',
+      title: 'Ads & Campaign Marketing',
+      description: 'Data-driven Meta Ads and Google Ads PPC campaigns designed to lower cost-per-acquisition (CPA), generate qualified leads, and maximize your return on ad spend (ROAS).',
+      features: ['Targeted Meta Ads (FB & Insta)', 'Google Ads Search & Display', 'High-Converting Funnel Design', 'Performance Tracking & Retargeting']
     }
   ];
 

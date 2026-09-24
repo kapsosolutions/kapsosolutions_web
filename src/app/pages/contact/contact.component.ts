@@ -11,8 +11,8 @@ import { ScrollAnimationService } from '../../services/scroll-animation.service'
     <section class="page-hero">
       <div class="container">
         <div class="hero-content" #animateEl>
-          <h1>Get in <span class="highlight">Touch</span></h1>
-          <p>We'd love to hear from you. Let's start a conversation.</p>
+          <h1>Contact <span class="highlight">Kapso Solutions</span></h1>
+          <p>Let's talk about WhatsApp automation, Meta verification, web &amp; apps, cloud, and ad campaigns.</p>
         </div>
       </div>
     </section>
@@ -29,14 +29,14 @@ import { ScrollAnimationService } from '../../services/scroll-animation.service'
                 <span class="material-icons icon">email</span>
                 <div>
                   <h4>Email</h4>
-                  <a href="https://mail.google.com/mail/?view=cm&to=kapsosolutions@gmail.com" target="_blank" class="contact-link">info&#64;kapsosolutions.com</a>
+                  <a href="https://mail.google.com/mail/?view=cm&to=contact@kapsosolutions.com" target="_blank" class="contact-link">contact&#64;kapsosolutions.com</a>
                 </div>
               </div>
               <div class="info-item">
                 <span class="material-icons icon">phone</span>
                 <div>
                   <h4>Phone</h4>
-                  <a href="tel:+919440203095" class="contact-link">+91 9440203095</a>
+                  <a href="tel:+917816012002" class="contact-link">+91 7816012002</a>
                 </div>
               </div>
               <div class="info-item">
@@ -75,11 +75,13 @@ import { ScrollAnimationService } from '../../services/scroll-animation.service'
                 <label for="subject">Subject</label>
                 <select id="subject" [(ngModel)]="form.subject" name="subject" required>
                   <option value="" disabled>Select a subject</option>
-                  <option value="web">Web Development</option>
-                  <option value="app">App Development</option>
-                  <option value="ai">AI & ML Solutions</option>
-                  <option value="automation">Automation</option>
-                  <option value="other">Other</option>
+                  <option value="whatsapp">WhatsApp Automation &amp; API</option>
+                  <option value="meta">Meta Business Verification</option>
+                  <option value="web">Website Development</option>
+                  <option value="app">Mobile App Development</option>
+                  <option value="cloud">Cloud Services &amp; DevOps</option>
+                  <option value="ads">Ads &amp; Campaign Marketing</option>
+                  <option value="other">Other Inquiry</option>
                 </select>
               </div>
               <div class="form-group">
