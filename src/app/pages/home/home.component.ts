@@ -80,38 +80,6 @@ import { ScrollAnimationService } from '../../services/scroll-animation.service'
       </div>
     </div>
 
-    <section class="services-stacked">
-      <div class="container">
-        <div class="section-header" #animateEl>
-          <h2 class="section-title">What We Do at Kapso Solutions</h2>
-          <p class="section-subtitle">Industry-leading WhatsApp automation, Meta verification, custom web &amp; apps, cloud architecture, and high-ROI campaigns</p>
-        </div>
-        
-        <div class="stacked-cards-container">
-          @for (service of services; track service.title; let i = $index) {
-            <div class="stacked-card" [style.top.px]="140 + i * 20" [class.highlighted]="service.highlighted">
-              <div class="card-inner">
-                <div class="card-icon" [style.color]="service.color">
-                  <i [class]="service.icon"></i>
-                </div>
-                <div class="card-content">
-                  <h3>{{ service.title }}</h3>
-                  <p>{{ service.description }}</p>
-                </div>
-                <div class="card-arrow">
-                  <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M5 12h14"/><path d="m12 5 7 7-7 7"/></svg>
-                </div>
-              </div>
-            </div>
-          }
-        </div>
-        
-        <div class="cta-center" #animateEl>
-          <a routerLink="/services" class="btn-primary">View All Services</a>
-        </div>
-      </div>
-    </section>
-
     <!-- Build mini-apps inside WhatsApp Section -->
     <section class="whatsapp-flows-section">
       <div class="container flows-wrapper">
