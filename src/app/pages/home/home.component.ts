@@ -98,12 +98,15 @@ import { ScrollAnimationService } from '../../services/scroll-animation.service'
 
         <div class="flows-video-showcase" #animateEl>
           <video 
+            #flowsVideo
             src="/whatsapp_flows_demo.webm" 
             autoplay 
             loop 
             muted 
             playsinline
+            [muted]="true"
             preload="auto"
+            (ended)="replayVideo(flowsVideo)"
             class="flows-direct-video"
             aria-label="Interactive demonstration of mini-apps inside WhatsApp Flows">
           </video>
@@ -126,7 +129,15 @@ export class HomeComponent implements AfterViewInit, OnInit, OnDestroy {
   @ViewChild('hologramBeam') hologramBeam!: ElementRef;
   @ViewChildren('holoIcon') holoIcons!: QueryList<ElementRef>;
   @ViewChild('servicesWrapper') servicesWrapper!: ElementRef;
+  @ViewChild('flowsVideo') flowsVideo?: ElementRef<HTMLVideoElement>;
   private renderId?: number;
+
+  replayVideo(video: HTMLVideoElement) {
+    if (video) {
+      video.currentTime = 0;
+      video.play().catch(() => {});
+    }
+  }
 
   currentIST = '';
   private timeInterval: any;
@@ -248,8 +259,12 @@ export class HomeComponent implements AfterViewInit, OnInit, OnDestroy {
     }
 
     if (isPlatformBrowser(this.platformId)) {
-
       this.checkIconsInBeam();
+      if (this.flowsVideo?.nativeElement) {
+        const vid = this.flowsVideo.nativeElement;
+        vid.muted = true;
+        vid.play().catch(() => {});
+      }
     }
   }
 }

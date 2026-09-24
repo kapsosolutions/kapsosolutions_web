@@ -621,8 +621,7 @@
 
 /* ===== WHATSAPP FLOWS MINI-APPS SECTION ===== */
 .whatsapp-flows-section {
-  background: #060606;
-  background-image: radial-gradient(ellipse 65% 55% at 50% 50%, rgba(37, 211, 102, 0.09) 0%, transparent 70%);
+  background: #080808;
   padding: 110px 24px 130px;
   position: relative;
   overflow: hidden;
@@ -690,7 +689,7 @@
   display: flex;
   justify-content: center;
   align-items: center;
-  max-width: 440px;
+  max-width: 640px;
   margin: 0 auto;
   opacity: 0;
   transform: translateY(30px);
@@ -704,7 +703,7 @@
 
 .flows-direct-video {
   width: 100%;
-  max-width: 400px;
+  max-width: 580px;
   height: auto;
   display: block;
   background: transparent;
@@ -734,6 +733,6 @@
     font-size: 1rem;
   }
   .flows-direct-video {
-    max-width: 320px;
+    max-width: 380px;
   }
 }
