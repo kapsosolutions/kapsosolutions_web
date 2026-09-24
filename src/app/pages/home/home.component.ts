@@ -63,6 +63,23 @@ import { ScrollAnimationService } from '../../services/scroll-animation.service'
       </div>
     </section>
 
+    <!-- Meta Business Partners Strip -->
+    <div class="meta-partner-strip" #animateEl>
+      <div class="meta-partner-inner">
+        <div class="meta-divider-line"></div>
+        <div class="meta-partner-badge">
+          <div class="meta-brand-title">
+            <svg class="meta-infinity-logo" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+              <path d="M16.992 3.5c-2.18 0-3.992 1.408-4.992 3.193C11 4.908 9.188 3.5 7.008 3.5 3.136 3.5 0 6.645 0 10.517c0 4.887 4.227 8.983 10.457 11.233.957.345 2.129.345 3.086 0C19.773 19.5 24 15.404 24 10.517 24 6.645 20.864 3.5 16.992 3.5zm-9.984 13.08c-3.155 0-5.708-2.56-5.708-5.72 0-3.16 2.553-5.72 5.708-5.72 1.93 0 3.633 1.004 4.646 2.548-1.503 2.146-3.14 5.344-4.646 8.892zm9.984 0c-1.506-3.548-3.143-6.746-4.646-8.892 1.013-1.544 2.716-2.548 4.646-2.548 3.155 0 5.708 2.56 5.708 5.72 0 3.16-2.553 5.72-5.708 5.72z" fill="#0081FB"/>
+            </svg>
+            <span class="meta-partner-heading">Meta Business Partners</span>
+          </div>
+          <p class="meta-partner-caption">Trusted by developers worldwide</p>
+        </div>
+        <div class="meta-divider-line"></div>
+      </div>
+    </div>
+
     <section class="services-stacked">
       <div class="container">
         <div class="section-header" #animateEl>
@@ -91,6 +108,45 @@ import { ScrollAnimationService } from '../../services/scroll-animation.service'
         
         <div class="cta-center" #animateEl>
           <a routerLink="/services" class="btn-primary">View All Services</a>
+        </div>
+      </div>
+    </section>
+
+    <!-- Build mini-apps inside WhatsApp Section -->
+    <section class="whatsapp-flows-section">
+      <div class="container flows-wrapper">
+        <div class="flows-header" #animateEl>
+          <h2 class="flows-title">Build mini-apps inside<br>WhatsApp</h2>
+          <p class="flows-desc">
+            Kapso makes WhatsApp Flows easy. Describe what you want and our Agent builds, deploys, and debugs it for you. Forms, bookings, catalogs, connected to any API.
+          </p>
+          <a routerLink="/services" class="flows-cta-link">
+            <span>Explore WhatsApp Flows</span>
+            <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
+              <path d="M5 12h14"/><path d="m12 5 7 7-7 7"/>
+            </svg>
+          </a>
+        </div>
+
+        <div class="flows-phone-display" #animateEl>
+          <div class="flows-phone-shell">
+            <div class="flows-phone-island">
+              <div class="island-speaker"></div>
+              <div class="island-lens"></div>
+            </div>
+            <div class="flows-screen-container">
+              <video 
+                src="/whatsapp_flows_demo.webm" 
+                autoplay 
+                loop 
+                muted 
+                playsinline
+                preload="metadata"
+                class="flows-video-element"
+                aria-label="Interactive demonstration of mini-apps inside WhatsApp Flows">
+              </video>
+            </div>
+          </div>
         </div>
       </div>
     </section>
