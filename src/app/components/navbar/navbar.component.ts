@@ -6,13 +6,12 @@ import { filter } from 'rxjs/operators';
 
 @Component({
   selector: 'app-navbar',
-  standalone: true,
   imports: [RouterLink, RouterLinkActive, CommonModule],
   template: `
     <nav class="navbar" [class.scrolled]="isScrolled" [class.dark-hero]="!isHomePage && !isScrolled">
       <div class="container nav-content">
         <a routerLink="/" class="logo" style="text-decoration: none;">
-          <img src="/logo.png" alt="Kapso Solutions" class="logo-img" style="max-height: 48px; width: auto;">
+          <span class="logo-text">KAPSO SOLUTIONS</span>
         </a>
         <ul class="nav-links" [class.active]="menuOpen">
           <li><a routerLink="/" routerLinkActive="active" [routerLinkActiveOptions]="{exact: true}" (click)="closeMenu()">Home</a></li>
@@ -51,17 +50,19 @@ import { filter } from 'rxjs/operators';
     .logo {
       display: flex;
       align-items: center;
-    }
-    .logo svg {
-      stroke: #ffffff;
+      text-decoration: none;
     }
     .logo-text {
-      font-size: 0.95rem;
+      font-size: 1.25rem;
       font-weight: 800;
       color: #ffffff;
-      margin-left: 12px;
-      line-height: 1.1;
+      line-height: 1;
       letter-spacing: 2px;
+      text-transform: uppercase;
+      transition: color 0.3s ease;
+    }
+    .logo:hover .logo-text {
+      color: #25D366;
     }
     .nav-links {
       display: flex;
@@ -145,6 +146,12 @@ import { filter } from 'rxjs/operators';
         opacity: 1;
         pointer-events: all;
         box-shadow: 0 10px 30px rgba(0,0,0,0.1);
+      }
+    }
+    @media (max-width: 480px) {
+      .logo-text {
+        font-size: 1.05rem;
+        letter-spacing: 1.5px;
       }
     }
   `]
