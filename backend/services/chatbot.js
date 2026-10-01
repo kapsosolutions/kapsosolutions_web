@@ -144,6 +144,36 @@ export async function sendBookingConfirmation(phone) {
   }
 }
 
+// Send the "you already requested a demo" confirmation. Prefers the approved
+// template (works even outside the 24h window, e.g. a website re-booking),
+// falling back to the rich interactive message when no template is set.
+export async function sendAlreadyRequestedConfirmation(phone) {
+  const template = process.env.WA_ALREADY_TEMPLATE;
+  const s = await getSettings([SETTING_KEYS.ALREADY_IMAGE]);
+  const image = s[SETTING_KEYS.ALREADY_IMAGE] || 'https://www.kapsosolutions.com/logo.png';
+  if (template) {
+    try {
+      await metaCloud.sendTemplate(phone, template, {
+        languageCode: process.env.WA_ALREADY_TEMPLATE_LANG || 'en_US',
+        headerImageUrl: image
+      });
+      await touchOutbound(phone, 'Already requested confirmation');
+      return { sent: true, via: 'template' };
+    } catch (e) {
+      logger.warn('already-requested template send failed, falling back', {
+        error: e.response?.data?.error?.message || e.message
+      });
+    }
+  }
+  try {
+    await sendAlreadyBooked(phone);
+    return { sent: true, via: 'session' };
+  } catch (e) {
+    logger.warn('already-requested confirmation could not be sent', { error: e.response?.data?.error?.message || e.message });
+    return { sent: false };
+  }
+}
+
 // Main inbound handler.
 export async function handleMessage(msg) {
   const { phone, type } = msg;
@@ -166,4 +196,4 @@ export async function handleMessage(msg) {
   return sendWelcome(phone);
 }
 
-export default { handleMessage, handleStatus, handleReaction, logInbound, sendDemoSuccess, sendBookingConfirmation };
+export default { handleMessage, handleStatus, handleReaction, logInbound, sendDemoSuccess, sendBookingConfirmation, sendAlreadyRequestedConfirmation };

@@ -2,7 +2,7 @@ import express from 'express';
 import DemoLead from '../models/DemoLead.js';
 import Category from '../models/Category.js';
 import { emitDemo } from '../services/eventBus.js';
-import { sendBookingConfirmation } from '../services/chatbot.js';
+import { sendBookingConfirmation, sendAlreadyRequestedConfirmation } from '../services/chatbot.js';
 import logger from '../services/logger.js';
 
 const router = express.Router();
@@ -36,6 +36,8 @@ router.post('/demo/book', async (req, res) => {
 
     const existing = await DemoLead.findOne({ phone }).lean();
     if (existing) {
+      // Notify them on WhatsApp that they've already requested a demo.
+      sendAlreadyRequestedConfirmation(phone).catch((e) => logger.warn('already-requested send failed', { error: e.message }));
       return res.json({
         success: true,
         alreadyRequested: true,
