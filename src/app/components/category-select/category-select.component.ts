@@ -68,7 +68,7 @@ import { PublicCategory } from '../../services/demo.service';
       background: #fff; border: 1px solid #e9ecef; border-radius: 12px; padding: 6px; list-style: none;
       max-height: 300px; overflow-y: auto; box-shadow: 0 16px 40px rgba(0,0,0,.14);
     }
-    .cs-option { display: flex; align-items: center; gap: 12px; padding: 8px 10px; border-radius: 10px; cursor: pointer; }
+    .cs-option { display: flex; align-items: center; gap: 12px; padding: 8px 10px; border-radius: 10px; cursor: pointer; color: #0a0a0a; }
     .cs-option:hover { background: #f6f9f7; }
     .cs-option.active { background: rgba(37,211,102,.12); }
     .cs-empty { padding: 14px; color: #9aa0a6; font-size: .95rem; }
