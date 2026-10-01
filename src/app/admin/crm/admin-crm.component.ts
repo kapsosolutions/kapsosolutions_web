@@ -315,7 +315,7 @@ interface TemplateItem {
     .avatar { width: 44px; height: 44px; border-radius: 50%; background: var(--k-green); color: #06210f; display: flex; align-items: center; justify-content: center; font-size: 15px; flex-shrink: 0; }
     .ci-main { flex: 1; min-width: 0; }
     .ci-top { display: flex; justify-content: space-between; gap: 8px; }
-    .ci-name { font-size: 15px; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+    .ci-name { font-size: 15px; font-weight: 600; color: #fff; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
     .ci-time { font-size: 11px; color: var(--k-ink-muted); flex-shrink: 0; }
     .ci-bottom { display: flex; justify-content: space-between; gap: 8px; align-items: center; }
     .ci-preview { font-size: 13px; color: var(--k-ink-muted); white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
@@ -325,7 +325,7 @@ interface TemplateItem {
     .no-chat .material-icons { font-size: 48px; }
     .thread-head { display: flex; align-items: center; gap: 12px; padding: 10px 18px; border-bottom: 1px solid var(--k-hairline); }
     .th-info { flex: 1; min-width: 0; }
-    .th-name { font-size: 16px; }
+    .th-name { font-size: 16px; font-weight: 600; color: #fff; }
     .th-sub { font-size: 12px; color: var(--k-ink-muted); }
     .timer { display: flex; align-items: center; gap: 8px; padding: 7px 14px; border-radius: 50px; background: rgba(37,211,102,.15); color: #4ade80; border: 1px solid rgba(37,211,102,.4); }
     .timer .material-icons { font-size: 18px; }
