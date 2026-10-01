@@ -1,12 +1,15 @@
-import { Component, AfterViewInit, ElementRef, QueryList, ViewChildren } from '@angular/core';
+import { Component, AfterViewInit, OnInit, ElementRef, QueryList, ViewChildren, inject } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { FormsModule, NgForm } from '@angular/forms';
+import { HttpErrorResponse } from '@angular/common/http';
 import { ScrollAnimationService } from '../../services/scroll-animation.service';
+import { DemoService, PublicCategory, DemoBookingResponse } from '../../services/demo.service';
+import { CategorySelectComponent } from '../../components/category-select/category-select.component';
 
 @Component({
   selector: 'app-contact',
   standalone: true,
-  imports: [CommonModule, FormsModule],
+  imports: [CommonModule, FormsModule, CategorySelectComponent],
   template: `
     <section class="page-hero">
       <div class="container">
@@ -29,14 +32,14 @@ import { ScrollAnimationService } from '../../services/scroll-animation.service'
                 <span class="material-icons icon">email</span>
                 <div>
                   <h4>Email</h4>
-                  <a href="https://mail.google.com/mail/?view=cm&to=contact@kapsosolutions.com" target="_blank" class="contact-link">contact&#64;kapsosolutions.com</a>
+                  <a href="https://mail.google.com/mail/?view=cm&to=contact.kapsosolutions@gmail.com" target="_blank" class="contact-link">contact.kapsosolutions&#64;gmail.com</a>
                 </div>
               </div>
               <div class="info-item">
                 <span class="material-icons icon">phone</span>
                 <div>
                   <h4>Phone</h4>
-                  <a href="tel:+917816012002" class="contact-link">+91 7816012002</a>
+                  <a href="tel:+917989909361" class="contact-link">+91 7989909361</a>
                 </div>
               </div>
               <div class="info-item">
@@ -56,39 +59,45 @@ import { ScrollAnimationService } from '../../services/scroll-animation.service'
           </div>
 
           <div class="contact-form" #animateEl>
+            <h3 class="form-title">Book a Free Demo</h3>
+            <p class="form-sub">Tell us about your business and our team will reach out shortly.</p>
             <form #contactForm="ngForm" (ngSubmit)="onSubmit(contactForm)">
               <div class="form-row">
                 <div class="form-group">
-                  <label for="firstName">First Name</label>
-                  <input type="text" id="firstName" [(ngModel)]="form.firstName" name="firstName" required>
+                  <label for="name">Your Name</label>
+                  <input type="text" id="name" [(ngModel)]="form.name" name="name" required>
                 </div>
                 <div class="form-group">
-                  <label for="lastName">Last Name</label>
-                  <input type="text" id="lastName" [(ngModel)]="form.lastName" name="lastName" required>
+                  <label for="businessName">Business Name</label>
+                  <input type="text" id="businessName" [(ngModel)]="form.businessName" name="businessName" required>
+                </div>
+              </div>
+              <div class="form-group">
+                <label for="businessAddress">Business Address</label>
+                <input type="text" id="businessAddress" [(ngModel)]="form.businessAddress" name="businessAddress">
+              </div>
+              <div class="form-group">
+                <label for="category">Category</label>
+                <app-category-select [categories]="categories" [(ngModel)]="form.category" name="category" required></app-category-select>
+              </div>
+              <div class="form-row">
+                <div class="form-group">
+                  <label for="whatsappNumber">WhatsApp Number</label>
+                  <input type="tel" id="whatsappNumber" [(ngModel)]="form.whatsappNumber" name="whatsappNumber" required placeholder="10-digit number">
+                </div>
+                <div class="form-group">
+                  <label for="altMobile">Alternate Mobile</label>
+                  <input type="tel" id="altMobile" [(ngModel)]="form.altMobile" name="altMobile">
                 </div>
               </div>
               <div class="form-group">
                 <label for="email">Email</label>
-                <input type="email" id="email" [(ngModel)]="form.email" name="email" required pattern="[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}">
+                <input type="email" id="email" [(ngModel)]="form.email" name="email" pattern="[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}">
               </div>
-              <div class="form-group">
-                <label for="subject">Subject</label>
-                <select id="subject" [(ngModel)]="form.subject" name="subject" required>
-                  <option value="" disabled>Select a subject</option>
-                  <option value="whatsapp">WhatsApp Automation &amp; API</option>
-                  <option value="meta">Meta Business Verification</option>
-                  <option value="web">Website Development</option>
-                  <option value="app">Mobile App Development</option>
-                  <option value="cloud">Cloud Services &amp; DevOps</option>
-                  <option value="ads">Ads &amp; Campaign Marketing</option>
-                  <option value="other">Other Inquiry</option>
-                </select>
-              </div>
-              <div class="form-group">
-                <label for="message">Message</label>
-                <textarea id="message" [(ngModel)]="form.message" name="message" rows="5" required></textarea>
-              </div>
-              <button type="submit" class="btn-primary" [disabled]="contactForm.invalid">Send Message</button>
+              @if (errorMsg) { <p class="form-error">{{ errorMsg }}</p> }
+              <button type="submit" class="btn-primary" [disabled]="contactForm.invalid || submitting">
+                {{ submitting ? 'Booking…' : 'Book Demo' }}
+              </button>
             </form>
           </div>
         </div>
@@ -102,8 +111,8 @@ import { ScrollAnimationService } from '../../services/scroll-animation.service'
           <div class="dialog-icon">
             <span class="material-icons">check_circle</span>
           </div>
-          <h3>Message Sent!</h3>
-          <p>Thank you for reaching out. We will get back to you within 24 hours.</p>
+          <h3>{{ dialogTitle }}</h3>
+          <p>{{ dialogMessage }}</p>
           <button class="btn-primary" (click)="closeDialog()">Got it</button>
         </div>
       </div>
@@ -244,6 +253,21 @@ import { ScrollAnimationService } from '../../services/scroll-animation.service'
       opacity: 1;
       transform: translateX(0);
     }
+    .form-title {
+      font-size: 1.5rem;
+      margin-bottom: 6px;
+      color: #0a0a0a;
+    }
+    .form-sub {
+      color: #6c757d;
+      margin-bottom: 28px;
+      line-height: 1.5;
+    }
+    .form-error {
+      color: #d64545;
+      font-size: 0.9rem;
+      margin-bottom: 16px;
+    }
     .form-row {
       display: grid;
       grid-template-columns: 1fr 1fr;
@@ -372,32 +396,69 @@ import { ScrollAnimationService } from '../../services/scroll-animation.service'
     }
   `]
 })
-export class ContactComponent implements AfterViewInit {
+export class ContactComponent implements AfterViewInit, OnInit {
   @ViewChildren('animateEl') animateElements!: QueryList<ElementRef>;
 
+  private demoService = inject(DemoService);
+
+  categories: PublicCategory[] = [];
+  submitting = false;
+  errorMsg = '';
+  dialogTitle = 'Demo Booked!';
+  dialogMessage = 'Thank you for reaching out. We will get back to you within 24 hours.';
+
   form = {
-    firstName: '',
-    lastName: '',
-    email: '',
-    subject: '',
-    message: ''
+    name: '',
+    businessName: '',
+    businessAddress: '',
+    category: '',
+    whatsappNumber: '',
+    altMobile: '',
+    email: ''
   };
 
   showDialog = false;
 
   constructor(private scrollAnimation: ScrollAnimationService) {}
 
+  ngOnInit() {
+    this.demoService.getCategories().subscribe({
+      next: (res: { success: boolean; data: PublicCategory[] }) => { this.categories = res.data || []; },
+      error: () => { /* backend offline — dropdown just stays empty */ }
+    });
+  }
+
   ngAfterViewInit() {
     this.animateElements.forEach(el => this.scrollAnimation.observe(el.nativeElement));
   }
 
   onSubmit(contactForm: NgForm) {
-    if (contactForm.valid) {
-      console.log('Form submitted:', this.form);
-      this.showDialog = true;
-      this.form = { firstName: '', lastName: '', email: '', subject: '', message: '' };
-      contactForm.resetForm();
-    }
+    if (!contactForm.valid || this.submitting) return;
+    this.submitting = true;
+    this.errorMsg = '';
+    this.demoService.bookDemo(this.form).subscribe({
+      next: (res: DemoBookingResponse) => {
+        this.submitting = false;
+        if (res.success) {
+          if (res.alreadyRequested) {
+            this.dialogTitle = 'Already Requested';
+            this.dialogMessage = 'This WhatsApp number has already booked a demo. Our team will contact you shortly.';
+          } else {
+            this.dialogTitle = 'Demo Booked!';
+            this.dialogMessage = 'Your demo has been booked! Our team will reach out to you shortly.';
+          }
+          this.showDialog = true;
+          this.form = { name: '', businessName: '', businessAddress: '', category: '', whatsappNumber: '', altMobile: '', email: '' };
+          contactForm.resetForm();
+        } else {
+          this.errorMsg = res.message || 'Something went wrong. Please try again.';
+        }
+      },
+      error: (e: HttpErrorResponse) => {
+        this.submitting = false;
+        this.errorMsg = e?.error?.message || 'Unable to submit right now. Please try again.';
+      }
+    });
   }
 
   closeDialog() {

@@ -38,8 +38,8 @@ import { RouterLink } from '@angular/router';
           </div>
           <div class="footer-links contact-links">
             <h4>Contact</h4>
-            <a href="https://mail.google.com/mail/?view=cm&to=contact@kapsosolutions.com" target="_blank"><span class="material-icons">email</span> contact&#64;kapsosolutions.com</a>
-            <a href="tel:+917816012002"><span class="material-icons">phone</span> +91 7816012002</a>
+            <a href="https://mail.google.com/mail/?view=cm&to=contact.kapsosolutions@gmail.com" target="_blank"><span class="material-icons">email</span> contact.kapsosolutions&#64;gmail.com</a>
+            <a href="tel:+917989909361"><span class="material-icons">phone</span> +91 7989909361</a>
             <p><span class="material-icons">location_on</span> Andhra Pradesh, India</p>
           </div>
         </div>

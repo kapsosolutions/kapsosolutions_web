@@ -107,3 +107,91 @@ img {
   color: var(--gray-600);
   max-width: 600px;
 }
+
+/* ==========================================================================
+   Admin panel theme — matches the website's dark theme.
+   Scoped under .admin-shell so it never touches the marketing site.
+   The CRM component overrides these vars back to the WhatsApp cream palette.
+   ========================================================================== */
+.admin-shell {
+  --k-green: #25d366;
+  --k-ink: #f1f3f5;          /* primary text (light) */
+  --k-ink-muted: #9ca3af;    /* muted text */
+  --k-canvas: #0a0a0a;       /* page background (dark) */
+  --k-surface: #16181c;      /* card / input background */
+  --k-surface-2: #1f2228;    /* subtle raised surface */
+  --k-hairline: #2a2d33;     /* borders */
+  --k-danger: #ff6b6b;
+
+  display: block;
+  width: 100%;
+  user-select: text;
+  /* Render the whole admin at 90% scale for a more compact feel. */
+  zoom: 0.9;
+  min-height: calc(100vh / 0.9);
+  background: var(--k-canvas);
+  color: var(--k-ink);
+  font-family: 'Outfit', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+  font-weight: 400;
+}
+.admin-shell *,
+.admin-shell *::before,
+.admin-shell *::after { box-sizing: border-box; }
+
+.admin-shell h1, .admin-shell h2, .admin-shell h3 { font-weight: 700; color: var(--k-ink); }
+.admin-shell a { color: var(--k-ink); text-decoration: none; }
+
+/* Pills everywhere */
+.admin-shell .k-btn {
+  display: inline-flex; align-items: center; justify-content: center; gap: 8px;
+  background: var(--k-green); color: #06210f;
+  border: 1px solid transparent; border-radius: 50px;
+  padding: 12px 24px; font-size: 15px; font-weight: 600; cursor: pointer;
+  transition: transform .15s ease, box-shadow .15s ease;
+}
+.admin-shell .k-btn:hover { box-shadow: 0 4px 14px rgba(37,211,102,.35); }
+.admin-shell .k-btn:disabled { opacity: .45; cursor: not-allowed; }
+.admin-shell .k-btn.ghost { background: transparent; color: var(--k-ink); border-color: var(--k-hairline); }
+.admin-shell .k-btn.danger { background: transparent; color: var(--k-danger); border-color: var(--k-danger); }
+.admin-shell .k-btn.sm { padding: 7px 16px; font-size: 13px; }
+
+.admin-shell .k-card {
+  background: var(--k-surface); border: 1px solid var(--k-hairline);
+  border-radius: 18px; padding: 24px;
+}
+.admin-shell .k-input, .admin-shell .k-select, .admin-shell .k-textarea {
+  width: 100%; background: var(--k-surface-2); color: var(--k-ink);
+  border: 1px solid var(--k-hairline); border-radius: 12px;
+  padding: 12px 16px; font-size: 15px; font-family: inherit;
+}
+.admin-shell .k-select option { background: #16181c; color: var(--k-ink); }
+.admin-shell .k-textarea { border-radius: 14px; resize: vertical; min-height: 90px; }
+.admin-shell .k-input::placeholder, .admin-shell .k-textarea::placeholder { color: #6b7280; }
+.admin-shell .k-input:focus, .admin-shell .k-select:focus, .admin-shell .k-textarea:focus {
+  outline: none; border-color: var(--k-green); box-shadow: 0 0 0 3px rgba(37,211,102,.18);
+}
+.admin-shell .k-label { display:block; font-size: 13px; color: var(--k-ink-muted); margin-bottom: 6px; }
+.admin-shell .k-field { margin-bottom: 18px; }
+
+.admin-shell .k-chip {
+  display:inline-flex; align-items:center; gap:6px; padding: 5px 12px;
+  border-radius: 50px; font-size: 12px; border: 1px solid var(--k-hairline); color: var(--k-ink);
+}
+.admin-shell .k-chip.green { background: rgba(37,211,102,.15); border-color: rgba(37,211,102,.5); color: #4ade80; }
+.admin-shell .k-chip.amber { background: rgba(245,180,60,.12); border-color: rgba(245,180,60,.45); color: #f5c451; }
+.admin-shell .k-chip.grey  { background: rgba(255,255,255,.06); }
+
+/* CRM keeps the WhatsApp cream/green chat look — override the palette back. */
+.admin-shell app-admin-crm {
+  --k-ink: #1c1e21;
+  --k-ink-muted: #5e5e5e;
+  --k-canvas: #fcf5eb;
+  --k-surface: #ffffff;
+  --k-surface-2: #ffffff;
+  --k-hairline: #e6ddcf;
+  --k-danger: #d64545;
+  color: var(--k-ink);
+}
+.admin-shell app-admin-crm .k-btn { color: #06210f; }
+.admin-shell app-admin-crm .k-chip.green { background: #e6ffda; border-color: #bff0a6; color: #1c1e21; }
+.admin-shell app-admin-crm .k-chip.amber { background: #fff4d6; border-color: #f0dca6; color: #1c1e21; }

@@ -1,0 +1,89 @@
+{
+  "version": "5.1",
+  "data_api_version": "3.0",
+  "routing_model": {
+    "BOOK_DEMO": ["SUCCESS"],
+    "SUCCESS": []
+  },
+  "screens": [
+    {
+      "id": "BOOK_DEMO",
+      "title": "Book Demo",
+      "data": {
+        "categories": {
+          "type": "array",
+          "items": {
+            "type": "object",
+            "properties": {
+              "id": { "type": "string" },
+              "title": { "type": "string" },
+              "image": { "type": "string" }
+            }
+          },
+          "__example__": [
+            { "id": "retail", "title": "Retail" },
+            { "id": "restaurant", "title": "Restaurant" }
+          ]
+        },
+        "wa_number": { "type": "string", "__example__": "+919999999999" },
+        "heading": { "type": "string", "__example__": "Book your free demo" },
+        "subheading": { "type": "string", "__example__": "Tell us about your business." }
+      },
+      "layout": {
+        "type": "SingleColumnLayout",
+        "children": [
+          { "type": "TextHeading", "text": "${data.heading}" },
+          { "type": "TextSubheading", "text": "${data.subheading}" },
+          {
+            "type": "Form",
+            "name": "demo_form",
+            "init-values": { "wa_number": "${data.wa_number}" },
+            "children": [
+              { "type": "TextInput", "name": "name", "label": "Your Name", "input-type": "text", "required": true },
+              { "type": "TextInput", "name": "business_name", "label": "Business Name", "input-type": "text", "required": true },
+              { "type": "TextArea", "name": "business_address", "label": "Business Address", "required": true },
+              { "type": "Dropdown", "name": "category", "label": "Category", "required": true, "data-source": "${data.categories}" },
+              { "type": "TextInput", "name": "wa_number", "label": "WhatsApp Number (locked)", "input-type": "phone", "enabled": false },
+              { "type": "TextInput", "name": "alt_mobile", "label": "Alternate Mobile Number", "input-type": "phone", "required": false },
+              { "type": "TextInput", "name": "email", "label": "Email", "input-type": "email", "required": false },
+              {
+                "type": "Footer",
+                "label": "Book Demo",
+                "on-click-action": {
+                  "name": "data_exchange",
+                  "payload": {
+                    "name": "${form.name}",
+                    "business_name": "${form.business_name}",
+                    "business_address": "${form.business_address}",
+                    "category": "${form.category}",
+                    "alt_mobile": "${form.alt_mobile}",
+                    "email": "${form.email}"
+                  }
+                }
+              }
+            ]
+          }
+        ]
+      }
+    },
+    {
+      "id": "SUCCESS",
+      "title": "Done",
+      "terminal": true,
+      "success": true,
+      "data": {},
+      "layout": {
+        "type": "SingleColumnLayout",
+        "children": [
+          { "type": "TextHeading", "text": "Demo booked! 🎉" },
+          { "type": "TextBody", "text": "Thank you for your interest in Kapso Solutions. Our team will reach out to you shortly to schedule your personalised demo." },
+          {
+            "type": "Footer",
+            "label": "Done",
+            "on-click-action": { "name": "complete", "payload": {} }
+          }
+        ]
+      }
+    }
+  ]
+}

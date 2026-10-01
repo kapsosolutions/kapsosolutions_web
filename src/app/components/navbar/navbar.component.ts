@@ -11,7 +11,7 @@ import { filter } from 'rxjs/operators';
     <nav class="navbar" [class.scrolled]="isScrolled" [class.dark-hero]="!isHomePage && !isScrolled">
       <div class="container nav-content">
         <a routerLink="/" class="logo" style="text-decoration: none;">
-          <span class="logo-text">KAPSO SOLUTIONS</span>
+          <img src="logo.png" alt="Kapso Solutions" class="logo-img" />
         </a>
         <ul class="nav-links" [class.active]="menuOpen">
           <li><a routerLink="/" routerLinkActive="active" [routerLinkActiveOptions]="{exact: true}" (click)="closeMenu()">Home</a></li>
@@ -52,17 +52,14 @@ import { filter } from 'rxjs/operators';
       align-items: center;
       text-decoration: none;
     }
-    .logo-text {
-      font-size: 1.25rem;
-      font-weight: 800;
-      color: #ffffff;
-      line-height: 1;
-      letter-spacing: 2px;
-      text-transform: uppercase;
-      transition: color 0.3s ease;
+    .logo-img {
+      height: 52px;
+      width: auto;
+      object-fit: contain;
+      transition: transform 0.3s ease;
     }
-    .logo:hover .logo-text {
-      color: #25D366;
+    .logo:hover .logo-img {
+      transform: scale(1.03);
     }
     .nav-links {
       display: flex;
@@ -149,9 +146,8 @@ import { filter } from 'rxjs/operators';
       }
     }
     @media (max-width: 480px) {
-      .logo-text {
-        font-size: 1.05rem;
-        letter-spacing: 1.5px;
+      .logo-img {
+        height: 42px;
       }
     }
   `]
