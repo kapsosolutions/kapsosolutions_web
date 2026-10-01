@@ -119,12 +119,13 @@ export async function sendDemoSuccess(phone) {
 export async function sendBookingConfirmation(phone) {
   const template = process.env.WA_BOOKING_TEMPLATE;
   const s = await getSettings([SETTING_KEYS.SUCCESS_IMAGE]);
-  const image = s[SETTING_KEYS.SUCCESS_IMAGE];
+  // The booking template has an IMAGE header, which needs a link at send time.
+  const image = s[SETTING_KEYS.SUCCESS_IMAGE] || 'https://www.kapsosolutions.com/logo.png';
   if (template) {
     try {
       await metaCloud.sendTemplate(phone, template, {
         languageCode: process.env.WA_BOOKING_TEMPLATE_LANG || 'en_US',
-        headerImageUrl: image || undefined
+        headerImageUrl: image
       });
       await touchOutbound(phone, 'Demo booking confirmed');
       return { sent: true, via: 'template' };

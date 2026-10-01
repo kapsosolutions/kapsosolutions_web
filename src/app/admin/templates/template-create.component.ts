@@ -129,17 +129,17 @@ interface TemplateButton { type: ButtonType; text: string; url?: string; phone?:
     .submit { width: 100%; margin-top: 6px; }
     .err { color: var(--k-danger); font-size: 13px; margin-bottom: 10px; }
     .ok { color: #4ade80; font-size: 13px; margin-bottom: 10px; }
-    .pv-chat { background: #efe7db; border-radius: 12px; padding: 14px; }
-    .pv-bubble { background: #fff; border-radius: 10px; padding: 8px 10px; box-shadow: 0 1px 1px rgba(0,0,0,.12); color: #111; }
+    .pv-chat { background: #0b141a; border-radius: 12px; padding: 14px; }
+    .pv-bubble { background: #202c33; border-radius: 10px; padding: 8px 10px; box-shadow: 0 1px 1px rgba(0,0,0,.2); color: #e9edef; }
     .pv-header { font-weight: 700; margin-bottom: 6px; white-space: pre-wrap; }
-    .pv-media { height: 130px; border-radius: 8px; background: #d8e0dc; display: flex; align-items: center; justify-content: center; color: #7d8b85; margin-bottom: 6px; }
+    .pv-media { height: 130px; border-radius: 8px; background: #2a3942; display: flex; align-items: center; justify-content: center; color: #8696a0; margin-bottom: 6px; }
     .pv-media .material-icons { font-size: 42px; }
     .pv-media-img { width: 100%; max-height: 180px; object-fit: cover; border-radius: 8px; margin-bottom: 6px; display: block; }
-    .pv-body { font-size: 14px; white-space: pre-wrap; word-break: break-word; color: #111; }
-    .pv-footer { font-size: 12px; color: #667; margin-top: 6px; }
-    .pv-time { font-size: 10px; color: #99a; text-align: right; margin-top: 4px; }
+    .pv-body { font-size: 14px; white-space: pre-wrap; word-break: break-word; color: #e9edef; }
+    .pv-footer { font-size: 12px; color: #8696a0; margin-top: 6px; }
+    .pv-time { font-size: 10px; color: #8696a0; text-align: right; margin-top: 4px; }
     .pv-buttons { margin-top: 6px; display: flex; flex-direction: column; gap: 6px; }
-    .pv-btn { background: #fff; border-radius: 8px; padding: 9px; text-align: center; color: #00a5f4; font-size: 14px; display: flex; align-items: center; justify-content: center; gap: 6px; box-shadow: 0 1px 1px rgba(0,0,0,.12); }
+    .pv-btn { background: #202c33; border-radius: 8px; padding: 9px; text-align: center; color: #53bdeb; font-size: 14px; display: flex; align-items: center; justify-content: center; gap: 6px; box-shadow: 0 1px 1px rgba(0,0,0,.2); }
     .pv-btn .material-icons { font-size: 16px; }
   `]
 })

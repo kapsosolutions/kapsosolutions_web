@@ -183,6 +183,10 @@ export class AdminApiService {
     return this.http.get<{ success: boolean; data: ChatMessage[] }>(`${API_BASE}/api/crm/messages/${phone}`, { headers: this.authHeaders() });
   }
 
+  deleteChat(phone: string): Observable<{ success: boolean }> {
+    return this.http.delete<{ success: boolean }>(`${API_BASE}/api/crm/chats/${phone}`, { headers: this.authHeaders() });
+  }
+
   sendMessage(phone: string, text: string): Observable<{ success: boolean }> {
     return this.http.post<{ success: boolean }>(`${API_BASE}/api/crm/send`, { phone, text }, { headers: this.authHeaders() });
   }

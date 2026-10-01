@@ -181,17 +181,4 @@ img {
 .admin-shell .k-chip.amber { background: rgba(245,180,60,.12); border-color: rgba(245,180,60,.45); color: #f5c451; }
 .admin-shell .k-chip.grey  { background: rgba(255,255,255,.06); }
 
-/* CRM keeps the WhatsApp cream/green chat look — override the palette back. */
-.admin-shell app-admin-crm {
-  --k-ink: #1c1e21;
-  --k-ink-muted: #5e5e5e;
-  --k-canvas: #fcf5eb;
-  --k-surface: #ffffff;
-  --k-surface-2: #ffffff;
-  --k-hairline: #e6ddcf;
-  --k-danger: #d64545;
-  color: var(--k-ink);
-}
-.admin-shell app-admin-crm .k-btn { color: #06210f; }
-.admin-shell app-admin-crm .k-chip.green { background: #e6ffda; border-color: #bff0a6; color: #1c1e21; }
-.admin-shell app-admin-crm .k-chip.amber { background: #fff4d6; border-color: #f0dca6; color: #1c1e21; }
+

@@ -83,7 +83,31 @@ interface TemplateItem {
                 </div>
               }
             </div>
+            <button class="del-chat" (click)="confirmDelete.set(true)" title="Delete chat" aria-label="Delete chat">
+              <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round">
+                <polyline points="3 6 5 6 21 6"></polyline>
+                <path d="M19 6l-1 14a2 2 0 0 1-2 2H8a2 2 0 0 1-2-2L5 6m3 0V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2"></path>
+                <line x1="10" y1="11" x2="10" y2="17"></line>
+                <line x1="14" y1="11" x2="14" y2="17"></line>
+              </svg>
+            </button>
           </header>
+
+          @if (confirmDelete()) {
+            <div class="modal-backdrop" (click)="confirmDelete.set(false)">
+              <div class="modal" (click)="$event.stopPropagation()">
+                <div class="modal-icon"><span class="material-icons">delete_forever</span></div>
+                <h3>Delete this chat?</h3>
+                <p>This permanently deletes the entire conversation with <strong>{{ activeName() }}</strong>, including all messages and any shared photos, videos, and files. This can't be undone.</p>
+                <div class="modal-actions">
+                  <button class="k-btn ghost" (click)="confirmDelete.set(false)" [disabled]="deleting()">Cancel</button>
+                  <button class="k-btn danger-solid" (click)="deleteChat()" [disabled]="deleting()">
+                    {{ deleting() ? 'Deleting…' : 'Delete' }}
+                  </button>
+                </div>
+              </div>
+            </div>
+          }
 
           <div class="messages" #msgBox>
             @for (m of messages(); track m._id) {
@@ -286,16 +310,16 @@ interface TemplateItem {
     .chats-list { overflow-y: auto; flex: 1; }
     .empty { padding: 24px; color: var(--k-ink-muted); font-size: 14px; }
     .chat-item { display: flex; gap: 12px; align-items: center; width: 100%; text-align: left; padding: 12px 16px; background: none; border: none; border-bottom: 1px solid var(--k-hairline); cursor: pointer; }
-    .chat-item:hover { background: #faf6ef; }
-    .chat-item.active { background: #e6ffda; }
-    .avatar { width: 44px; height: 44px; border-radius: 50%; background: var(--k-green); color: var(--k-ink); display: flex; align-items: center; justify-content: center; font-size: 15px; flex-shrink: 0; }
+    .chat-item:hover { background: rgba(255,255,255,.05); }
+    .chat-item.active { background: rgba(37,211,102,.14); }
+    .avatar { width: 44px; height: 44px; border-radius: 50%; background: var(--k-green); color: #06210f; display: flex; align-items: center; justify-content: center; font-size: 15px; flex-shrink: 0; }
     .ci-main { flex: 1; min-width: 0; }
     .ci-top { display: flex; justify-content: space-between; gap: 8px; }
     .ci-name { font-size: 15px; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
     .ci-time { font-size: 11px; color: var(--k-ink-muted); flex-shrink: 0; }
     .ci-bottom { display: flex; justify-content: space-between; gap: 8px; align-items: center; }
     .ci-preview { font-size: 13px; color: var(--k-ink-muted); white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
-    .badge { background: var(--k-green); color: var(--k-ink); border-radius: 50%; min-width: 20px; height: 20px; display:flex; align-items:center; justify-content:center; font-size: 11px; padding: 0 6px; }
+    .badge { background: var(--k-green); color: #06210f; border-radius: 50%; min-width: 20px; height: 20px; display:flex; align-items:center; justify-content:center; font-size: 11px; padding: 0 6px; }
     .thread { display: flex; flex-direction: column; min-height: 0; height: 100%; }
     .no-chat { flex: 1; display: flex; flex-direction: column; align-items: center; justify-content: center; color: var(--k-ink-muted); gap: 10px; }
     .no-chat .material-icons { font-size: 48px; }
@@ -303,20 +327,31 @@ interface TemplateItem {
     .th-info { flex: 1; min-width: 0; }
     .th-name { font-size: 16px; }
     .th-sub { font-size: 12px; color: var(--k-ink-muted); }
-    .timer { display: flex; align-items: center; gap: 8px; padding: 7px 14px; border-radius: 50px; background: #e6ffda; color: #0b6b4f; border: 1px solid #bff0a6; }
+    .timer { display: flex; align-items: center; gap: 8px; padding: 7px 14px; border-radius: 50px; background: rgba(37,211,102,.15); color: #4ade80; border: 1px solid rgba(37,211,102,.4); }
     .timer .material-icons { font-size: 18px; }
     .timer-txt { display: flex; flex-direction: column; line-height: 1.1; }
     .timer-val { font-size: 14px; font-weight: 600; font-variant-numeric: tabular-nums; }
     .timer-cap { font-size: 10px; opacity: .8; text-transform: uppercase; letter-spacing: .4px; }
-    .timer.warn { background: #ffe3e3; color: #c92a2a; border-color: #ffc9c9; }
-    .timer.closed { background: #f1f0ec; color: #6b6b6b; border-color: #e0ddd5; }
-    .messages { flex: 1; min-height: 0; overflow-y: auto; padding: 20px; display: flex; flex-direction: column; gap: 8px; background: #efe7db; }
+    .timer.warn { background: rgba(255,107,107,.15); color: #ff6b6b; border-color: rgba(255,107,107,.4); }
+    .timer.closed { background: rgba(255,255,255,.06); color: var(--k-ink-muted); border-color: var(--k-hairline); }
+    .del-chat { background: none; border: none; cursor: pointer; color: var(--k-ink-muted); width: 36px; height: 36px; border-radius: 50%; display: inline-flex; align-items: center; justify-content: center; flex-shrink: 0; }
+    .del-chat:hover { background: rgba(255,107,107,.12); color: var(--k-danger); }
+    /* Delete confirmation modal */
+    .modal-backdrop { position: absolute; inset: 0; z-index: 50; background: rgba(0,0,0,.55); display: flex; align-items: center; justify-content: center; padding: 24px; }
+    .modal { background: var(--k-surface); border: 1px solid var(--k-hairline); border-radius: 18px; padding: 26px; max-width: 400px; width: 100%; text-align: center; }
+    .modal-icon { width: 60px; height: 60px; border-radius: 50%; background: rgba(255,107,107,.15); color: var(--k-danger); display: flex; align-items: center; justify-content: center; margin: 0 auto 16px; }
+    .modal-icon .material-icons { font-size: 30px; }
+    .modal h3 { font-size: 20px; margin-bottom: 8px; }
+    .modal p { color: var(--k-ink-muted); font-size: 14px; line-height: 1.5; margin-bottom: 22px; }
+    .modal-actions { display: flex; gap: 12px; justify-content: center; }
+    .danger-solid { background: var(--k-danger) !important; color: #fff !important; border: 1px solid var(--k-danger) !important; }
+    .messages { flex: 1; min-height: 0; overflow-y: auto; padding: 20px; display: flex; flex-direction: column; gap: 8px; background: #0b141a; }
     .msg { display: flex; }
     .msg.out { justify-content: flex-end; }
     .msg-col { max-width: 60%; display: flex; flex-direction: column; gap: 4px; position: relative; }
-    .bubble { border-radius: 12px; padding: 5px 8px; font-size: 12.5px; line-height: 1.35; position: relative; background: #fff; box-shadow: 0 1px 1px rgba(0,0,0,.08); display: flex; flex-direction: column; margin-bottom: 6px; }
+    .bubble { border-radius: 12px; padding: 5px 8px; font-size: 12.5px; line-height: 1.35; position: relative; background: #202c33; color: #e9edef; box-shadow: 0 1px 1px rgba(0,0,0,.2); display: flex; flex-direction: column; margin-bottom: 6px; }
     /* Reaction chip overlapping the bubble's bottom edge (WhatsApp style). */
-    .reaction-chip { position: absolute; bottom: -12px; right: 8px; background: #fff; border: 1px solid var(--k-hairline); border-radius: 50px; padding: 1px 5px; font-size: 13px; line-height: 1.4; box-shadow: 0 1px 2px rgba(0,0,0,.15); }
+    .reaction-chip { position: absolute; bottom: -12px; right: 8px; background: #2a3942; border: 1px solid #0b141a; border-radius: 50px; padding: 1px 5px; font-size: 13px; line-height: 1.4; box-shadow: 0 1px 2px rgba(0,0,0,.3); }
     .msg.in .reaction-chip { right: auto; left: 8px; }
     /* React trigger — appears on hover beside the bubble. */
     .react-btn { position: absolute; top: 50%; transform: translateY(-50%); background: var(--k-surface); border: 1px solid var(--k-hairline); color: var(--k-ink-muted); width: 30px; height: 30px; border-radius: 50%; display: none; align-items: center; justify-content: center; cursor: pointer; z-index: 3; box-shadow: 0 1px 3px rgba(0,0,0,.2); }
@@ -325,30 +360,30 @@ interface TemplateItem {
     .react-btn .material-icons { font-size: 17px; }
     .msg:hover .react-btn { display: inline-flex; }
     .react-backdrop { position: fixed; inset: 0; z-index: 20; }
-    .react-picker { position: absolute; bottom: 50%; margin-bottom: 8px; z-index: 21; display: flex; align-items: center; gap: 2px; background: #fff; border: 1px solid var(--k-hairline); border-radius: 50px; padding: 4px 6px; box-shadow: 0 6px 20px rgba(0,0,0,.25); }
+    .react-picker { position: absolute; bottom: 50%; margin-bottom: 8px; z-index: 21; display: flex; align-items: center; gap: 2px; background: #233138; border: 1px solid var(--k-hairline); border-radius: 50px; padding: 4px 6px; box-shadow: 0 6px 20px rgba(0,0,0,.45); }
     .msg.out .react-picker { right: 0; }
     .msg.in .react-picker { left: 0; }
     .rp-emoji { background: none; border: none; cursor: pointer; font-size: 20px; padding: 3px 4px; border-radius: 50%; line-height: 1; transition: transform .1s ease; }
     .rp-emoji:hover { background: rgba(127,127,127,.15); transform: scale(1.2); }
     .rp-more, .rp-x { color: var(--k-ink-muted); border: 1px solid var(--k-hairline) !important; width: 26px; height: 26px; display: inline-flex; align-items: center; justify-content: center; }
     .rp-more .material-icons, .rp-x .material-icons { font-size: 16px; }
-    .emoji-grid { position: absolute; bottom: 50%; margin-bottom: 8px; z-index: 21; width: 260px; max-height: 220px; overflow-y: auto; display: grid; grid-template-columns: repeat(8, 1fr); gap: 2px; background: #fff; border: 1px solid var(--k-hairline); border-radius: 14px; padding: 8px; box-shadow: 0 8px 28px rgba(0,0,0,.3); }
+    .emoji-grid { position: absolute; bottom: 50%; margin-bottom: 8px; z-index: 21; width: 260px; max-height: 220px; overflow-y: auto; display: grid; grid-template-columns: repeat(8, 1fr); gap: 2px; background: #233138; border: 1px solid var(--k-hairline); border-radius: 14px; padding: 8px; box-shadow: 0 8px 28px rgba(0,0,0,.5); }
     .msg.out .emoji-grid { right: 0; }
     .msg.in .emoji-grid { left: 0; }
     /* Media download button overlay. */
     .media-wrap { position: relative; display: inline-block; }
     .dl-btn { position: absolute; top: 8px; right: 8px; width: 32px; height: 32px; border-radius: 50%; background: rgba(0,0,0,.55); color: #fff; display: inline-flex; align-items: center; justify-content: center; text-decoration: none; }
     .dl-btn .material-icons { font-size: 18px; }
-    .dl-btn.inline { position: static; background: rgba(0,0,0,.08); color: var(--k-ink); }
+    .dl-btn.inline { position: static; background: rgba(255,255,255,.1); color: var(--k-ink); }
     .audio-wrap { display: flex; align-items: center; gap: 8px; }
-    .msg.out .bubble { background: #d9fdd3; }
+    .msg.out .bubble { background: #005c4b; }
     .text { white-space: pre-wrap; word-break: break-word; padding: 2px 4px 0; }
     .bubble-img { width: 100%; border-radius: 10px; margin-bottom: 4px; display: block; }
     .bubble-media { width: 100%; max-width: 240px; border-radius: 10px; margin-bottom: 4px; display: block; }
     .bubble-audio { width: 260px; max-width: 100%; margin: 2px 0 4px; }
-    .doc-card { display: flex; align-items: center; gap: 10px; padding: 10px 12px; background: rgba(0,0,0,.05); border-radius: 10px; margin-bottom: 4px; color: var(--k-ink); text-decoration: none; }
+    .doc-card { display: flex; align-items: center; gap: 10px; padding: 10px 12px; background: rgba(255,255,255,.08); border-radius: 10px; margin-bottom: 4px; color: var(--k-ink); text-decoration: none; }
     .doc-card .doc-name { flex: 1; min-width: 0; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; font-size: 13px; }
-    .doc-card .material-icons { font-size: 20px; color: #00a5f4; }
+    .doc-card .material-icons { font-size: 20px; color: #53bdeb; }
     .bubble-htext { font-weight: 600; padding: 2px 4px; }
     .bubble-foot { font-size: 12px; color: var(--k-ink-muted); padding: 2px 4px; margin-top: 2px; }
     .meta { display: flex; align-items: center; gap: 4px; justify-content: flex-end; font-size: 10px; color: var(--k-ink-muted); margin-top: 2px; padding: 0 4px; }
@@ -356,8 +391,8 @@ interface TemplateItem {
     .ticks.read { color: #34b7f1; }
     /* Buttons render as separate cards below the bubble (WhatsApp style). */
     .msg-buttons { display: flex; flex-direction: column; gap: 4px; }
-    .msg-btn { display: flex; align-items: center; justify-content: center; gap: 6px; padding: 10px; font-size: 14px; color: #00a5f4; background: #fff; border-radius: 10px; box-shadow: 0 1px 1px rgba(0,0,0,.12); text-decoration: none; }
-    .msg.out .msg-btn { background: #d9fdd3; }
+    .msg-btn { display: flex; align-items: center; justify-content: center; gap: 6px; padding: 10px; font-size: 14px; color: #53bdeb; background: #202c33; border-radius: 10px; box-shadow: 0 1px 1px rgba(0,0,0,.2); text-decoration: none; }
+    .msg.out .msg-btn { background: #025144; }
     .msg-btn .material-icons { font-size: 16px; }
     a.msg-btn { cursor: pointer; }
     .thread { position: relative; }
@@ -365,7 +400,7 @@ interface TemplateItem {
     .closed-note { font-size: 12px; color: var(--k-danger); margin-bottom: 8px; }
     .composer-row { display: flex; gap: 10px; align-items: center; }
     .icon-btn { background: none; border: none; cursor: pointer; color: var(--k-ink-muted); display: inline-flex; align-items: center; justify-content: center; padding: 8px; border-radius: 50%; transition: background .15s ease, color .15s ease; }
-    .icon-btn:hover { background: #f1eee8; color: var(--k-green); }
+    .icon-btn:hover { background: rgba(255,255,255,.08); color: var(--k-green); }
     .send { padding: 12px 16px; }
     .send .material-icons { font-size: 18px; }
     /* Template drawer */
@@ -387,18 +422,18 @@ interface TemplateItem {
     .tmpl-name { font-size: 14px; flex: 1; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
     .k-chip.sm { padding: 2px 8px; font-size: 10px; }
     .ic-send { flex-shrink: 0; width: 34px; height: 34px; border-radius: 50%; border: none; background: var(--k-green); color: #06210f; display: inline-flex; align-items: center; justify-content: center; cursor: pointer; }
-    .ic-send:disabled { opacity: .45; cursor: not-allowed; background: #cfd8d0; color: #7a8a80; }
+    .ic-send:disabled { opacity: .45; cursor: not-allowed; background: #2a3942; color: #6b7b85; }
     .ic-send .material-icons { font-size: 16px; }
-    .tmpl-preview { background: #efe7db; border-radius: 12px; padding: 12px; margin: 2px 0 12px; }
-    .tp-bubble { background: #fff; border-radius: 8px; padding: 8px 10px; box-shadow: 0 1px 1px rgba(0,0,0,.1); color: #111; }
+    .tmpl-preview { background: #0b141a; border-radius: 12px; padding: 12px; margin: 2px 0 12px; }
+    .tp-bubble { background: #202c33; border-radius: 8px; padding: 8px 10px; box-shadow: 0 1px 1px rgba(0,0,0,.2); color: #e9edef; }
     .tp-header { font-weight: 700; margin-bottom: 4px; white-space: pre-wrap; }
-    .tp-media { height: 110px; border-radius: 8px; background: #d8e0dc; display: flex; align-items: center; justify-content: center; color: #7d8b85; margin-bottom: 6px; }
+    .tp-media { height: 110px; border-radius: 8px; background: #2a3942; display: flex; align-items: center; justify-content: center; color: #8696a0; margin-bottom: 6px; }
     .tp-media .material-icons { font-size: 40px; }
     .tp-media-img { width: 100%; max-height: 170px; object-fit: cover; border-radius: 8px; margin-bottom: 6px; display: block; }
     .tp-body { font-size: 13px; white-space: pre-wrap; word-break: break-word; }
-    .tp-footer { font-size: 11px; color: #667; margin-top: 4px; }
+    .tp-footer { font-size: 11px; color: #8696a0; margin-top: 4px; }
     .tp-buttons { display: flex; flex-direction: column; gap: 6px; margin-top: 6px; }
-    .tp-btn { background: #fff; border-radius: 8px; padding: 8px; text-align: center; color: #00a5f4; font-size: 13px; display: flex; align-items: center; justify-content: center; gap: 6px; box-shadow: 0 1px 1px rgba(0,0,0,.1); }
+    .tp-btn { background: #202c33; border-radius: 8px; padding: 8px; text-align: center; color: #53bdeb; font-size: 13px; display: flex; align-items: center; justify-content: center; gap: 6px; box-shadow: 0 1px 1px rgba(0,0,0,.2); }
     .tp-btn .material-icons { font-size: 15px; }
     .two { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; }
     .drawer-body .k-btn { width: 100%; }
@@ -427,6 +462,8 @@ export class AdminCrmComponent implements OnInit, OnDestroy {
   uploading = signal(false);
   reactingId = signal<string | null>(null);
   showAllEmojis = signal(false);
+  confirmDelete = signal(false);
+  deleting = signal(false);
   quickEmojis = ['👍', '❤️', '😂', '😮', '😢', '🙏'];
   allEmojis = [
     '👍', '👎', '❤️', '🔥', '🎉', '😂', '😍', '😮', '😢', '😡',
@@ -609,6 +646,22 @@ export class AdminCrmComponent implements OnInit, OnDestroy {
     if (o?.mediaUrl) return { url: o.mediaUrl, type: o.mediaType || 'document', filename: o.filename };
     if (m.raw?.media?.url) return m.raw.media;
     return null;
+  }
+
+  deleteChat(): void {
+    const phone = this.activePhone();
+    if (!phone) return;
+    this.deleting.set(true);
+    this.api.deleteChat(phone).subscribe({
+      next: () => {
+        this.deleting.set(false);
+        this.confirmDelete.set(false);
+        this.chats.update((list) => list.filter((c) => c.phone !== phone));
+        this.messages.set([]);
+        this.activePhone.set(null);
+      },
+      error: (e: HttpErrorResponse) => { this.deleting.set(false); alert(e?.error?.message || 'Delete failed'); }
+    });
   }
 
   toggleReactPicker(m: ChatMessage): void {

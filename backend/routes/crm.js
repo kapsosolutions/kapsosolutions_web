@@ -13,6 +13,37 @@ import logger from '../services/logger.js';
 const router = express.Router();
 router.use(requireAdmin);
 
+// ---------------- Delete a whole chat (messages + conversation + media) ----------------
+router.delete('/chats/:phone', async (req, res) => {
+  try {
+    const phone = req.params.phone.replace(/\D/g, '');
+    if (!phone) return res.status(400).json({ success: false, message: 'phone required' });
+
+    const messages = await Message.find({ phone }).lean();
+
+    // Collect every Cloudinary asset used in this chat (inbound + outbound media).
+    const urls = new Set();
+    for (const m of messages) {
+      const u1 = m.raw?.media?.url;
+      const u2 = m.raw?.outbound?.mediaUrl;
+      if (u1) urls.add(u1);
+      if (u2) urls.add(u2);
+    }
+    for (const url of urls) {
+      // eslint-disable-next-line no-await-in-loop
+      await cloudinaryService.deleteByUrl(url).catch(() => {});
+    }
+
+    await Message.deleteMany({ phone });
+    await Conversation.deleteOne({ phone });
+
+    res.json({ success: true, deletedMessages: messages.length, deletedMedia: urls.size });
+  } catch (err) {
+    logger.error('crm delete chat failed', { error: err.message });
+    res.status(500).json({ success: false, message: err.message });
+  }
+});
+
 // ---------------- Conversations (chat list) ----------------
 router.get('/chats', async (_req, res) => {
   const chats = await Conversation.find().sort({ lastInboundAt: -1 }).limit(200).lean();

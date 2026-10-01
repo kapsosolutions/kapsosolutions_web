@@ -45,9 +45,14 @@ const cloudinaryService = {
   async deleteByUrl(url) {
     ensureConfig();
     try {
-      const m = url.match(/\/upload\/(?:[^/]+\/)*?(?:v\d+\/)?(.+)\.[a-z]+$/i);
+      if (!url || !url.includes('/upload/')) return;
+      // Resource type is encoded in the delivery URL (/image/, /video/, /raw/).
+      let resourceType = 'image';
+      if (url.includes('/video/upload/')) resourceType = 'video';
+      else if (url.includes('/raw/upload/')) resourceType = 'raw';
+      const m = url.match(/\/upload\/(?:[^/]+\/)*?(?:v\d+\/)?(.+?)(?:\.[a-z0-9]+)?$/i);
       if (!m) return;
-      await cloudinary.uploader.destroy(m[1]);
+      await cloudinary.uploader.destroy(m[1], { resource_type: resourceType });
     } catch (err) {
       logger.warn('cloudinary delete failed', { error: err.message });
     }
