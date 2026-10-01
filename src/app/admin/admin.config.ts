@@ -1,5 +1,5 @@
-// Backend API base URL. In development the Node backend runs on :5000.
-// For production, change this to your deployed backend origin.
-export const API_BASE = 'http://localhost:5000';
+// Backend API base URL (Render deployment). For local backend dev, change
+// this to 'http://localhost:5000'.
+export const API_BASE = 'https://kapsosolutions-web.onrender.com';
 
 export const ADMIN_TOKEN_KEY = 'kapso_admin_token';
