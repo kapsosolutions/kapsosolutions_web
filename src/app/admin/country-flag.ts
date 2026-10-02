@@ -27,19 +27,21 @@ const CALLING_CODES: Record<string, string> = {
   '993': 'TM', '994': 'AZ', '995': 'GE', '996': 'KG', '998': 'UZ'
 };
 
-function isoToFlag(iso: string): string {
-  if (!iso || iso.length !== 2) return '';
-  const A = 0x1f1e6;
-  return String.fromCodePoint(A + iso.charCodeAt(0) - 65, A + iso.charCodeAt(1) - 65);
-}
-
-// Returns the flag emoji for a phone number (digits, no +). Longest match wins.
-export function phoneToFlag(phone: string): string {
+// Returns the lowercase ISO2 for a phone number (digits, no +). Longest match
+// wins. Empty string if unknown. Use with a flag-image CDN (flagcdn.com), since
+// flag emojis don't render on Windows.
+export function phoneToIso(phone: string): string {
   const digits = (phone || '').replace(/\D/g, '');
-  if (!digits) return '🌐';
+  if (!digits) return '';
   for (let len = 4; len >= 1; len--) {
     const iso = CALLING_CODES[digits.slice(0, len)];
-    if (iso) return isoToFlag(iso);
+    if (iso) return iso.toLowerCase();
   }
-  return '🌐';
+  return '';
+}
+
+// Flag image URL (PNG) for a phone number, or '' if the country is unknown.
+export function phoneToFlagUrl(phone: string): string {
+  const iso = phoneToIso(phone);
+  return iso ? `https://flagcdn.com/24x18/${iso}.png` : '';
 }

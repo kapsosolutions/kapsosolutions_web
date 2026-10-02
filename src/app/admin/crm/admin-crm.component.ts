@@ -7,7 +7,7 @@ import { HttpErrorResponse } from '@angular/common/http';
 import { AdminApiService, Chat, ChatMessage, OutboundDescriptor, MediaInfo } from '../admin-api.service';
 import { CrmSocketService } from '../crm-socket.service';
 import { TemplateCreateComponent } from '../templates/template-create.component';
-import { phoneToFlag } from '../country-flag';
+import { phoneToFlagUrl } from '../country-flag';
 
 interface TemplateComponent {
   type: string;
@@ -67,7 +67,10 @@ interface TemplateItem {
             <div class="avatar">{{ initials(activeName()) }}</div>
             <div class="th-info">
               <div class="th-name">{{ activeName() }}</div>
-              <div class="th-sub"><span class="flag">{{ phoneFlag(activePhone()) }}</span> +{{ activePhone() }}</div>
+              <div class="th-sub">
+                @if (phoneFlag(activePhone())) { <img class="flag" [src]="phoneFlag(activePhone())" alt="" /> }
+                +{{ activePhone() }}
+              </div>
             </div>
             <div class="timer" [class.warn]="windowDanger()" [class.closed]="!windowOpen()">
               @if (windowOpen()) {
@@ -335,8 +338,8 @@ interface TemplateItem {
     .thread-head { display: flex; align-items: center; gap: 12px; padding: 10px 18px; border-bottom: 1px solid var(--k-hairline); }
     .th-info { flex: 1; min-width: 0; }
     .th-name { font-size: 16px; font-weight: 600; color: #fff; }
-    .th-sub { font-size: 12px; color: var(--k-ink-muted); display: flex; align-items: center; gap: 5px; }
-    .th-sub .flag { font-size: 15px; line-height: 1; }
+    .th-sub { font-size: 12px; color: var(--k-ink-muted); display: flex; align-items: center; gap: 6px; }
+    .th-sub .flag { width: 20px; height: 15px; border-radius: 2px; object-fit: cover; }
     .timer { display: flex; align-items: center; gap: 8px; padding: 7px 14px; border-radius: 50px; background: rgba(37,211,102,.15); color: #4ade80; border: 1px solid rgba(37,211,102,.4); }
     .timer .material-icons { font-size: 18px; }
     .timer-txt { display: flex; flex-direction: column; line-height: 1.1; }
@@ -689,7 +692,7 @@ export class AdminCrmComponent implements OnInit, OnDestroy {
   }
 
   phoneFlag(phone: string | null): string {
-    return phoneToFlag(phone || '');
+    return phoneToFlagUrl(phone || '');
   }
 
   // Short notification beep via the Web Audio API (no asset needed).
