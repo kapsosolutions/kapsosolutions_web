@@ -13,6 +13,18 @@ import logger from '../services/logger.js';
 const router = express.Router();
 router.use(requireAdmin);
 
+// ---------------- Mark a chat as read (clear unread count) ----------------
+router.post('/read', async (req, res) => {
+  try {
+    const { phone } = req.body || {};
+    if (!phone) return res.status(400).json({ success: false, message: 'phone required' });
+    await Conversation.updateOne({ phone: String(phone).replace(/\D/g, '') }, { $set: { unread: 0 } });
+    res.json({ success: true });
+  } catch (err) {
+    res.status(500).json({ success: false, message: err.message });
+  }
+});
+
 // ---------------- Pause / resume bot automation for a chat ----------------
 router.post('/pause', async (req, res) => {
   try {

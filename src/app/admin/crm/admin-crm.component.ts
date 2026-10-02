@@ -526,6 +526,8 @@ export class AdminCrmComponent implements OnInit, OnDestroy {
         if (m.phone === this.activePhone()) {
           this.messages.update((list) => [...list, m]);
           this.scrollToBottom();
+          // The chat is open, so keep it marked read on the server too.
+          if (m.direction === 'in') this.api.markRead(m.phone).subscribe({ error: () => {} });
         }
         this.loadChats();
       })
@@ -561,7 +563,10 @@ export class AdminCrmComponent implements OnInit, OnDestroy {
   private loadChats(): void {
     this.api.getChats().subscribe({
       next: (res: { success: boolean; data: Chat[] }) => {
-        this.chats.set(res.data || []);
+        // The currently-open chat is being read, so never show a badge for it.
+        const active = this.activePhone();
+        const data = (res.data || []).map((c) => (c.phone === active ? { ...c, unread: 0 } : c));
+        this.chats.set(data);
         // Deep-link from a demo lead: open that chat once the list is loaded.
         if (this.initialPhone) {
           const phone = this.initialPhone;
@@ -577,6 +582,8 @@ export class AdminCrmComponent implements OnInit, OnDestroy {
     const chat = this.chats().find((c) => c.phone === phone);
     this.activeName.set(chat?.name || `+${phone}`);
     this.paused.set(!!chat?.botPaused);
+    // Clear the unread badge immediately in the list.
+    this.chats.update((list) => list.map((c) => (c.phone === phone ? { ...c, unread: 0 } : c)));
     const lastInbound = chat?.lastInboundAt ? new Date(chat.lastInboundAt).getTime() : 0;
     this.windowExpiresAt.set(lastInbound + 24 * 60 * 60 * 1000);
     this.now.set(Date.now());

@@ -188,6 +188,10 @@ export class AdminApiService {
     return this.http.delete<{ success: boolean }>(`${API_BASE}/api/crm/chats/${phone}`, { headers: this.authHeaders() });
   }
 
+  markRead(phone: string): Observable<{ success: boolean }> {
+    return this.http.post<{ success: boolean }>(`${API_BASE}/api/crm/read`, { phone }, { headers: this.authHeaders() });
+  }
+
   setPause(phone: string, paused: boolean): Observable<{ success: boolean; botPaused: boolean }> {
     return this.http.post<{ success: boolean; botPaused: boolean }>(
       `${API_BASE}/api/crm/pause`,
