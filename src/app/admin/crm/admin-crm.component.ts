@@ -83,6 +83,14 @@ interface TemplateItem {
                 </div>
               }
             </div>
+            <button class="pause-btn" [class.paused]="paused()" (click)="togglePause()" [disabled]="pausing()"
+              [title]="paused() ? 'Automation paused — click to resume' : 'Pause automation (chat manually)'">
+              @if (paused()) {
+                <span class="material-icons">play_arrow</span> <span class="pause-label">Paused</span>
+              } @else {
+                <span class="material-icons">pause</span> <span class="pause-label">Auto</span>
+              }
+            </button>
             <button class="del-chat" (click)="confirmDelete.set(true)" title="Delete chat" aria-label="Delete chat">
               <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round">
                 <polyline points="3 6 5 6 21 6"></polyline>
@@ -334,6 +342,11 @@ interface TemplateItem {
     .timer-cap { font-size: 10px; opacity: .8; text-transform: uppercase; letter-spacing: .4px; }
     .timer.warn { background: rgba(255,107,107,.15); color: #ff6b6b; border-color: rgba(255,107,107,.4); }
     .timer.closed { background: rgba(255,255,255,.06); color: var(--k-ink-muted); border-color: var(--k-hairline); }
+    .pause-btn { display: inline-flex; align-items: center; gap: 5px; background: rgba(255,255,255,.06); border: 1px solid var(--k-hairline); cursor: pointer; color: var(--k-ink-muted); padding: 6px 12px; border-radius: 50px; font-size: 12px; flex-shrink: 0; }
+    .pause-btn .material-icons { font-size: 16px; }
+    .pause-btn:hover { color: var(--k-ink); }
+    .pause-btn.paused { background: rgba(245,180,60,.15); border-color: rgba(245,180,60,.5); color: #f5c451; }
+    .pause-label { font-weight: 500; }
     .del-chat { background: none; border: none; cursor: pointer; color: var(--k-ink-muted); width: 36px; height: 36px; border-radius: 50%; display: inline-flex; align-items: center; justify-content: center; flex-shrink: 0; }
     .del-chat:hover { background: rgba(255,107,107,.12); color: var(--k-danger); }
     /* Delete confirmation modal */
@@ -464,6 +477,8 @@ export class AdminCrmComponent implements OnInit, OnDestroy {
   showAllEmojis = signal(false);
   confirmDelete = signal(false);
   deleting = signal(false);
+  paused = signal(false);
+  pausing = signal(false);
   quickEmojis = ['👍', '❤️', '😂', '😮', '😢', '🙏'];
   allEmojis = [
     '👍', '👎', '❤️', '🔥', '🎉', '😂', '😍', '😮', '😢', '😡',
@@ -561,6 +576,7 @@ export class AdminCrmComponent implements OnInit, OnDestroy {
     this.activePhone.set(phone);
     const chat = this.chats().find((c) => c.phone === phone);
     this.activeName.set(chat?.name || `+${phone}`);
+    this.paused.set(!!chat?.botPaused);
     const lastInbound = chat?.lastInboundAt ? new Date(chat.lastInboundAt).getTime() : 0;
     this.windowExpiresAt.set(lastInbound + 24 * 60 * 60 * 1000);
     this.now.set(Date.now());
@@ -646,6 +662,21 @@ export class AdminCrmComponent implements OnInit, OnDestroy {
     if (o?.mediaUrl) return { url: o.mediaUrl, type: o.mediaType || 'document', filename: o.filename };
     if (m.raw?.media?.url) return m.raw.media;
     return null;
+  }
+
+  togglePause(): void {
+    const phone = this.activePhone();
+    if (!phone) return;
+    const next = !this.paused();
+    this.pausing.set(true);
+    this.api.setPause(phone, next).subscribe({
+      next: (res: { success: boolean; botPaused: boolean }) => {
+        this.pausing.set(false);
+        this.paused.set(res.botPaused);
+        this.chats.update((list) => list.map((c) => (c.phone === phone ? { ...c, botPaused: res.botPaused } : c)));
+      },
+      error: (e: HttpErrorResponse) => { this.pausing.set(false); alert(e?.error?.message || 'Could not update automation state'); }
+    });
   }
 
   deleteChat(): void {

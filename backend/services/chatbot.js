@@ -5,7 +5,7 @@ import logger from './logger.js';
 import Message from '../models/Message.js';
 import DemoLead from '../models/DemoLead.js';
 import { emitMessage, emitStatus, emitDemo, emitReaction } from './eventBus.js';
-import { touchInbound, touchOutbound } from './conversationState.js';
+import { touchInbound, touchOutbound, getConversation } from './conversationState.js';
 import { getSettings, SETTING_KEYS } from './settings.js';
 
 const WEBSITE_URL = () => process.env.WEBSITE_URL || 'https://www.kapsosolutions.com/';
@@ -177,6 +177,14 @@ export async function sendAlreadyRequestedConfirmation(phone) {
 // Main inbound handler.
 export async function handleMessage(msg) {
   const { phone, type } = msg;
+
+  // If an agent paused automation for this chat, don't auto-reply at all —
+  // the inbound message is still logged for the CRM.
+  const convo = await getConversation(phone);
+  if (convo?.botPaused) {
+    logger.debug('automation paused, skipping auto-reply', { phone });
+    return;
+  }
 
   // Flow completion arrives as a flow (nfm_reply) message. The lead is persisted
   // by the flow endpoint; here we just confirm with the success message.

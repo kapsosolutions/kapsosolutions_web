@@ -13,6 +13,23 @@ import logger from '../services/logger.js';
 const router = express.Router();
 router.use(requireAdmin);
 
+// ---------------- Pause / resume bot automation for a chat ----------------
+router.post('/pause', async (req, res) => {
+  try {
+    const { phone, paused } = req.body || {};
+    if (!phone) return res.status(400).json({ success: false, message: 'phone required' });
+    const clean = String(phone).replace(/\D/g, '');
+    const convo = await Conversation.findOneAndUpdate(
+      { phone: clean },
+      { $set: { botPaused: !!paused } },
+      { upsert: true, new: true }
+    );
+    res.json({ success: true, botPaused: convo.botPaused });
+  } catch (err) {
+    res.status(500).json({ success: false, message: err.message });
+  }
+});
+
 // ---------------- Delete a whole chat (messages + conversation + media) ----------------
 router.delete('/chats/:phone', async (req, res) => {
   try {

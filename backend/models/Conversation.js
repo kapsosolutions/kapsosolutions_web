@@ -11,7 +11,9 @@ const ConversationSchema = new mongoose.Schema(
     lastInboundAt: { type: Date, default: Date.now },
     lastOutboundAt: { type: Date },
     lastMessageBody: { type: String, default: '' },
-    unread: { type: Number, default: 0 }
+    unread: { type: Number, default: 0 },
+    // When true, the bot stops auto-replying so an agent can chat manually.
+    botPaused: { type: Boolean, default: false }
   },
   { timestamps: true }
 );
