@@ -7,6 +7,7 @@ import { HttpErrorResponse } from '@angular/common/http';
 import { AdminApiService, Chat, ChatMessage, OutboundDescriptor, MediaInfo } from '../admin-api.service';
 import { CrmSocketService } from '../crm-socket.service';
 import { TemplateCreateComponent } from '../templates/template-create.component';
+import { phoneToFlag } from '../country-flag';
 
 interface TemplateComponent {
   type: string;
@@ -66,7 +67,7 @@ interface TemplateItem {
             <div class="avatar">{{ initials(activeName()) }}</div>
             <div class="th-info">
               <div class="th-name">{{ activeName() }}</div>
-              <div class="th-sub">+{{ activePhone() }}</div>
+              <div class="th-sub"><span class="flag">{{ phoneFlag(activePhone()) }}</span> +{{ activePhone() }}</div>
             </div>
             <div class="timer" [class.warn]="windowDanger()" [class.closed]="!windowOpen()">
               @if (windowOpen()) {
@@ -334,7 +335,8 @@ interface TemplateItem {
     .thread-head { display: flex; align-items: center; gap: 12px; padding: 10px 18px; border-bottom: 1px solid var(--k-hairline); }
     .th-info { flex: 1; min-width: 0; }
     .th-name { font-size: 16px; font-weight: 600; color: #fff; }
-    .th-sub { font-size: 12px; color: var(--k-ink-muted); }
+    .th-sub { font-size: 12px; color: var(--k-ink-muted); display: flex; align-items: center; gap: 5px; }
+    .th-sub .flag { font-size: 15px; line-height: 1; }
     .timer { display: flex; align-items: center; gap: 8px; padding: 7px 14px; border-radius: 50px; background: rgba(37,211,102,.15); color: #4ade80; border: 1px solid rgba(37,211,102,.4); }
     .timer .material-icons { font-size: 18px; }
     .timer-txt { display: flex; flex-direction: column; line-height: 1.1; }
@@ -518,6 +520,13 @@ export class AdminCrmComponent implements OnInit, OnDestroy {
   private initialPhone: string | null = null;
 
   ngOnInit(): void {
+    // Ask for desktop notification permission once.
+    try {
+      if (typeof Notification !== 'undefined' && Notification.permission === 'default') {
+        Notification.requestPermission();
+      }
+    } catch { /* ignore */ }
+
     this.initialPhone = this.route.snapshot.queryParamMap.get('phone');
     this.loadChats();
     // Live inbound/outbound messages.
@@ -528,6 +537,14 @@ export class AdminCrmComponent implements OnInit, OnDestroy {
           this.scrollToBottom();
           // The chat is open, so keep it marked read on the server too.
           if (m.direction === 'in') this.api.markRead(m.phone).subscribe({ error: () => {} });
+        }
+        // Notify + sound on inbound customer messages.
+        if (m.direction === 'in') {
+          this.playBeep();
+          const sender = this.chats().find((c) => c.phone === m.phone)?.name || `+${m.phone}`;
+          if (document.hidden || m.phone !== this.activePhone()) {
+            this.notify(sender, m.body?.trim() || 'New message');
+          }
         }
         this.loadChats();
       })
@@ -669,6 +686,39 @@ export class AdminCrmComponent implements OnInit, OnDestroy {
     if (o?.mediaUrl) return { url: o.mediaUrl, type: o.mediaType || 'document', filename: o.filename };
     if (m.raw?.media?.url) return m.raw.media;
     return null;
+  }
+
+  phoneFlag(phone: string | null): string {
+    return phoneToFlag(phone || '');
+  }
+
+  // Short notification beep via the Web Audio API (no asset needed).
+  private playBeep(): void {
+    try {
+      const Ctx = (window.AudioContext || (window as unknown as { webkitAudioContext: typeof AudioContext }).webkitAudioContext);
+      const ctx = new Ctx();
+      const osc = ctx.createOscillator();
+      const gain = ctx.createGain();
+      osc.connect(gain);
+      gain.connect(ctx.destination);
+      osc.type = 'sine';
+      osc.frequency.setValueAtTime(880, ctx.currentTime);
+      osc.frequency.setValueAtTime(660, ctx.currentTime + 0.12);
+      gain.gain.setValueAtTime(0.0001, ctx.currentTime);
+      gain.gain.exponentialRampToValueAtTime(0.25, ctx.currentTime + 0.02);
+      gain.gain.exponentialRampToValueAtTime(0.0001, ctx.currentTime + 0.35);
+      osc.start();
+      osc.stop(ctx.currentTime + 0.35);
+      osc.onended = () => ctx.close();
+    } catch { /* audio not available */ }
+  }
+
+  private notify(title: string, body: string): void {
+    try {
+      if (typeof Notification === 'undefined' || Notification.permission !== 'granted') return;
+      const n = new Notification(title, { body, icon: 'favicon.png', tag: 'kapso-crm' });
+      n.onclick = () => { window.focus(); n.close(); };
+    } catch { /* notifications not available */ }
   }
 
   togglePause(): void {
