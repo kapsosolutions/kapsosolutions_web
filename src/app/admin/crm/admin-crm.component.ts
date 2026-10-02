@@ -29,7 +29,7 @@ interface TemplateItem {
   imports: [DatePipe, FormsModule, TemplateCreateComponent],
   changeDetection: ChangeDetectionStrategy.OnPush,
   template: `
-    <div class="crm">
+    <div class="crm" [class.has-active]="!!activePhone()">
       <!-- Chat list -->
       <aside class="chats">
         <div class="chats-head"><h2>Chats</h2></div>
@@ -67,6 +67,7 @@ interface TemplateItem {
           </div>
         } @else {
           <header class="thread-head">
+            <button class="back-btn" (click)="closeActiveChat()" aria-label="Back to chats"><span class="material-icons">arrow_back</span></button>
             <div class="avatar">{{ initials(activeName()) }}</div>
             <div class="th-info">
               <div class="th-name">{{ activeName() }}</div>
@@ -461,10 +462,18 @@ interface TemplateItem {
     .drawer-body .k-btn { width: 100%; }
     .drawer-body .err { color: var(--k-danger); font-size: 12px; margin-bottom: 8px; }
     .drawer-body .ok { color: #128c7e; font-size: 12px; margin-bottom: 8px; }
-    @media (max-width: 800px) {
+    .back-btn { display: none; background: none; border: none; cursor: pointer; color: var(--k-ink); align-items: center; justify-content: center; flex-shrink: 0; padding: 0 2px; }
+    .back-btn .material-icons { font-size: 22px; }
+    @media (max-width: 900px) {
+      /* WhatsApp-style single pane: list by default, conversation on tap. */
       .crm { grid-template-columns: 1fr; }
-      .chats { display: none; }
-      .tmpl-drawer { width: 100%; }
+      .chats { border-right: none; }
+      .thread { display: none; }
+      .crm.has-active .chats { display: none; }
+      .crm.has-active .thread { display: flex; }
+      .back-btn { display: inline-flex; }
+      .tmpl-drawer { width: 100%; max-width: 100%; }
+      .msg-col { max-width: 85%; }
     }
   `]
 })
@@ -697,6 +706,12 @@ export class AdminCrmComponent implements OnInit, OnDestroy {
 
   phoneFlag(phone: string | null): string {
     return phoneToFlagUrl(phone || '');
+  }
+
+  // Mobile: return to the chat list.
+  closeActiveChat(): void {
+    this.activePhone.set(null);
+    this.drawerOpen.set(false);
   }
 
   // Short notification beep via the Web Audio API (no asset needed).
