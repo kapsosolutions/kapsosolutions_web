@@ -42,7 +42,10 @@ interface TemplateItem {
               <div class="avatar">{{ initials(c.name || c.phone) }}</div>
               <div class="ci-main">
                 <div class="ci-top">
-                  <span class="ci-name">{{ c.name || ('+' + c.phone) }}</span>
+                  <span class="ci-name">
+                    {{ c.name || ('+' + c.phone) }}
+                    @if (phoneFlag(c.phone)) { <img class="ci-flag" [src]="phoneFlag(c.phone)" alt="" /> }
+                  </span>
                   <span class="ci-time">{{ c.lastInboundAt | date: 'HH:mm' }}</span>
                 </div>
                 <div class="ci-bottom">
@@ -327,7 +330,8 @@ interface TemplateItem {
     .avatar { width: 44px; height: 44px; border-radius: 50%; background: var(--k-green); color: #06210f; display: flex; align-items: center; justify-content: center; font-size: 15px; flex-shrink: 0; }
     .ci-main { flex: 1; min-width: 0; }
     .ci-top { display: flex; justify-content: space-between; gap: 8px; }
-    .ci-name { font-size: 15px; font-weight: 600; color: #fff; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+    .ci-name { font-size: 15px; font-weight: 600; color: #fff; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; display: inline-flex; align-items: center; gap: 6px; }
+    .ci-flag { width: 18px; height: 13px; border-radius: 2px; object-fit: cover; flex-shrink: 0; }
     .ci-time { font-size: 11px; color: var(--k-ink-muted); flex-shrink: 0; }
     .ci-bottom { display: flex; justify-content: space-between; gap: 8px; align-items: center; }
     .ci-preview { font-size: 13px; color: var(--k-ink-muted); white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
