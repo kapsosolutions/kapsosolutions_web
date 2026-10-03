@@ -29,7 +29,9 @@ declare const html2pdf: unknown;
             <button class="k-btn" (click)="generate()" [disabled]="generating()">
               <span class="material-icons">qr_code_2</span> {{ generating() ? 'Generating…' : (inv()!.rzpQrImageUrl || inv()!.rzpPaymentLinkUrl ? 'Regenerate payment' : 'Generate Razorpay payment') }}
             </button>
-            <button class="k-btn ghost" (click)="refresh()" title="Refresh status"><span class="material-icons">refresh</span></button>
+            <button class="k-btn ghost" (click)="verify()" [disabled]="verifying()" title="Check if paid on Razorpay">
+              <span class="material-icons">{{ verifying() ? 'hourglass_top' : 'task_alt' }}</span> {{ verifying() ? 'Checking…' : 'Check payment' }}
+            </button>
           }
           <button class="k-btn ghost" (click)="downloadPdf()" [disabled]="pdfBusy()">
             <span class="material-icons">download</span> {{ pdfBusy() ? 'Preparing…' : 'Download PDF' }}
@@ -192,6 +194,7 @@ export class AdminInvoiceViewComponent implements OnInit {
   inv = signal<Invoice | null>(null);
   loading = signal(true);
   generating = signal(false);
+  verifying = signal(false);
   genError = signal('');
   pdfBusy = signal(false);
   copied = signal(false);
@@ -212,6 +215,21 @@ export class AdminInvoiceViewComponent implements OnInit {
   }
 
   refresh(): void { const i = this.inv(); if (i) this.load(i._id); }
+
+  verify(): void {
+    const i = this.inv();
+    if (!i) return;
+    this.verifying.set(true);
+    this.genError.set('');
+    this.api.verifyPayment(i._id).subscribe({
+      next: (res: { success: boolean; data: Invoice; paid: boolean }) => {
+        this.verifying.set(false);
+        this.inv.set(res.data);
+        if (!res.paid) this.genError.set('No payment found yet on Razorpay. If you just paid, wait a few seconds and check again.');
+      },
+      error: (e: HttpErrorResponse) => { this.verifying.set(false); this.genError.set(e?.error?.message || 'Could not verify payment'); }
+    });
+  }
 
   generate(): void {
     const i = this.inv();

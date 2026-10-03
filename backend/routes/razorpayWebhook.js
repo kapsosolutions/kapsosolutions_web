@@ -1,84 +1,10 @@
 import express from 'express';
 import Invoice from '../models/Invoice.js';
 import razorpay from '../services/razorpay.js';
-import metaCloud from '../services/metaCloud.js';
-import { buildInvoicePdf } from '../services/invoicePdf.js';
+import { markInvoicePaid } from '../services/invoicePayment.js';
 import logger from '../services/logger.js';
 
 const router = express.Router();
-
-// Format rupees for display in the receipt.
-const money = (n) => '₹' + Number(n || 0).toLocaleString('en-IN', { minimumFractionDigits: 2, maximumFractionDigits: 2 });
-
-// On payment, send the client a WhatsApp receipt: a dynamically generated PDF
-// (built in memory, uploaded to WhatsApp /media — NOT Cloudinary) plus, if
-// configured, an approved template notification.
-//
-// Note on delivery: a free-form document only reaches the user inside the 24h
-// customer-care window (i.e. if they recently chatted with the bot). The
-// template (WA_RECEIPT_TEMPLATE) is what guarantees delivery outside that window;
-// if its header is a document, we attach the same generated PDF to it.
-async function sendInvoiceReceipt(invoice) {
-  const phone = invoice.billTo?.whatsapp;
-  if (!phone) return;
-  let sentSomething = false;
-
-  // 1) Generate the receipt PDF in memory and upload it to WhatsApp media.
-  let mediaId = null;
-  const fileName = `Receipt-${invoice.invoiceNo || 'invoice'}.pdf`;
-  try {
-    const pdf = await buildInvoicePdf(invoice);
-    mediaId = await metaCloud.uploadMedia(pdf, { mimeType: 'application/pdf', filename: fileName });
-  } catch (e) {
-    logger.warn('receipt PDF build/upload failed', { error: e.response?.data?.error?.message || e.message });
-  }
-
-  // 2) Try to send the PDF as a document (works within the 24h window).
-  if (mediaId) {
-    try {
-      const caption = `Payment received for ${invoice.invoiceNo}. Amount: ${money(invoice.total)}. Thank you!`;
-      await metaCloud.sendDocumentMedia(phone, mediaId, fileName, caption);
-      sentSomething = true;
-    } catch (e) {
-      logger.warn('receipt document send failed', { error: e.response?.data?.error?.message || e.message });
-    }
-  }
-
-  // 3) Approved template notification (guaranteed outside the 24h window).
-  const template = process.env.WA_RECEIPT_TEMPLATE;
-  if (template) {
-    try {
-      const headerIsDoc = String(process.env.WA_RECEIPT_TEMPLATE_HEADER || '').toLowerCase() === 'document';
-      await metaCloud.sendTemplate(phone, template, {
-        languageCode: process.env.WA_RECEIPT_TEMPLATE_LANG || 'en_US',
-        headerImageUrl: headerIsDoc ? null : (process.env.RECEIPT_LOGO_URL || 'https://www.kapsosolutions.com/logo2.png'),
-        headerDocumentMediaId: headerIsDoc ? mediaId : null,
-        headerDocumentFilename: fileName,
-        bodyParams: [invoice.billTo?.businessName || 'Customer', invoice.invoiceNo, money(invoice.total)]
-      });
-      sentSomething = true;
-    } catch (e) {
-      logger.warn('receipt template send failed', { error: e.response?.data?.error?.message || e.message });
-    }
-  }
-
-  if (sentSomething) {
-    invoice.receiptSent = true;
-    await invoice.save();
-    logger.info('Invoice receipt sent', { invoiceNo: invoice.invoiceNo, phone, viaDocument: Boolean(mediaId) });
-  }
-}
-
-async function markPaid(invoice, paymentId) {
-  if (!invoice || invoice.status === 'Paid') return;
-  invoice.status = 'Paid';
-  invoice.paidAt = new Date();
-  if (paymentId) invoice.rzpPaymentId = paymentId;
-  await invoice.save();
-  // Close the QR so it can't be paid again.
-  if (invoice.rzpQrId) razorpay.closeQrCode(invoice.rzpQrId).catch(() => {});
-  if (!invoice.receiptSent) await sendInvoiceReceipt(invoice);
-}
 
 // ---------- Webhook (POST) ----------
 router.post('/webhook', async (req, res) => {
@@ -97,19 +23,19 @@ router.post('/webhook', async (req, res) => {
     if (event === 'qr_code.credited') {
       const qrId = payload.qr_code?.entity?.id;
       const paymentId = payload.payment?.entity?.id;
-      const inv = await Invoice.findOne({ rzpQrId: qrId });
-      await markPaid(inv, paymentId);
+      const inv = await Invoice.findOne({ rzpQrId: qrId }).populate('client');
+      await markInvoicePaid(inv, paymentId);
     } else if (event === 'payment_link.paid') {
       const linkId = payload.payment_link?.entity?.id;
       const paymentId = payload.payment?.entity?.id;
-      const inv = await Invoice.findOne({ rzpPaymentLinkId: linkId });
-      await markPaid(inv, paymentId);
+      const inv = await Invoice.findOne({ rzpPaymentLinkId: linkId }).populate('client');
+      await markInvoicePaid(inv, paymentId);
     } else if (event === 'payment.captured') {
       const entity = payload.payment?.entity || {};
       const ref = entity.notes?.reference_id;
       if (ref) {
-        const inv = await Invoice.findOne({ invoiceNo: ref });
-        await markPaid(inv, entity.id);
+        const inv = await Invoice.findOne({ invoiceNo: ref }).populate('client');
+        await markInvoicePaid(inv, entity.id);
       }
     }
   } catch (err) {

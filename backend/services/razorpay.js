@@ -89,6 +89,18 @@ const razorpay = {
     return data;
   },
 
+  // Payments captured against a dynamic QR code. Returns { count, items: [...] }.
+  async fetchQrPayments(qrId) {
+    const { data } = await axios.get(`${BASE}/payments/qr_codes/${qrId}/payments`, { auth: auth() });
+    return data;
+  },
+
+  // Current state of a payment link (status: created | paid | ...).
+  async fetchPaymentLink(linkId) {
+    const { data } = await axios.get(`${BASE}/payment_links/${linkId}`, { auth: auth() });
+    return data;
+  },
+
   // Verify a Razorpay webhook signature (HMAC SHA256 of the raw body).
   verifyWebhookSignature(rawBody, signature) {
     const secret = process.env.RAZORPAY_WEBHOOK_SECRET;

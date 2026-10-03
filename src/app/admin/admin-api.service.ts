@@ -307,6 +307,11 @@ export class AdminApiService {
       `${API_BASE}/api/billing/invoices/${id}/razorpay`, {}, { headers: this.authHeaders() }
     );
   }
+  verifyPayment(id: string): Observable<{ success: boolean; data: Invoice; paid: boolean }> {
+    return this.http.post<{ success: boolean; data: Invoice; paid: boolean }>(
+      `${API_BASE}/api/billing/invoices/${id}/verify`, {}, { headers: this.authHeaders() }
+    );
+  }
 
   getTemplates(): Observable<{ success: boolean; data: unknown[] }> {
     return this.http.get<{ success: boolean; data: unknown[] }>(`${API_BASE}/api/crm/templates`, { headers: this.authHeaders() });

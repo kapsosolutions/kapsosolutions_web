@@ -3,6 +3,7 @@ import { requireAdmin } from '../middleware/auth.js';
 import Client from '../models/Client.js';
 import Invoice from '../models/Invoice.js';
 import razorpay from '../services/razorpay.js';
+import { markInvoicePaid } from '../services/invoicePayment.js';
 import logger from '../services/logger.js';
 
 const router = express.Router();
@@ -182,6 +183,52 @@ router.post('/invoices/:id/razorpay', async (req, res) => {
     if (inv.status === 'Draft') inv.status = 'Sent';
     await inv.save();
     res.json({ success: true, data: inv, results });
+  } catch (err) {
+    res.status(500).json({ success: false, message: err.message });
+  }
+});
+
+// Actively ask Razorpay whether this invoice's QR / payment link has been paid,
+// and mark it Paid + send the receipt if so. This is the reliable fallback when
+// webhooks aren't configured or didn't arrive. Safe to call repeatedly.
+router.post('/invoices/:id/verify', async (req, res) => {
+  try {
+    const inv = await Invoice.findById(req.params.id).populate('client');
+    if (!inv) return res.status(404).json({ success: false, message: 'Not found' });
+    if (inv.status === 'Paid') return res.json({ success: true, data: inv, paid: true });
+    if (!razorpay.configured()) {
+      return res.status(400).json({ success: false, message: 'Razorpay not configured on the server' });
+    }
+
+    let paid = false;
+    let paymentId = null;
+
+    // 1) Payments captured against the QR code.
+    if (inv.rzpQrId) {
+      try {
+        const r = await razorpay.fetchQrPayments(inv.rzpQrId);
+        const captured = (r.items || []).find((p) => p.status === 'captured');
+        if (captured) { paid = true; paymentId = captured.id; }
+      } catch (e) {
+        logger.warn('verify: QR payments fetch failed', { error: e.response?.data?.error?.description || e.message });
+      }
+    }
+
+    // 2) Payment link status.
+    if (!paid && inv.rzpPaymentLinkId) {
+      try {
+        const link = await razorpay.fetchPaymentLink(inv.rzpPaymentLinkId);
+        if (link.status === 'paid') {
+          paid = true;
+          paymentId = link.payments?.find((p) => p.status === 'captured')?.payment_id || link.payments?.[0]?.payment_id || null;
+        }
+      } catch (e) {
+        logger.warn('verify: payment link fetch failed', { error: e.response?.data?.error?.description || e.message });
+      }
+    }
+
+    if (paid) await markInvoicePaid(inv, paymentId);
+    res.json({ success: true, data: inv, paid });
   } catch (err) {
     res.status(500).json({ success: false, message: err.message });
   }
