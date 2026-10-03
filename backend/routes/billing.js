@@ -72,7 +72,7 @@ async function nextInvoiceNo() {
 }
 
 router.get('/invoices', async (_req, res) => {
-  const invoices = await Invoice.find().populate('client', 'businessName whatsapp').sort({ createdAt: -1 }).limit(300);
+  const invoices = await Invoice.find().select('-rzpQrImageUrl').populate('client', 'businessName whatsapp').sort({ createdAt: -1 }).limit(300);
   res.json({ success: true, data: invoices });
 });
 
@@ -123,9 +123,9 @@ router.delete('/invoices/:id', async (req, res) => {
   res.json({ success: true, message: 'Deleted' });
 });
 
-// Generate a Razorpay hosted payment link for an invoice.
-// Note: the scan-to-pay UPI QR is generated locally in the browser from the
-// invoice total/UPI id — it is never created via Razorpay, uploaded, or persisted.
+// Generate a Razorpay dynamic UPI QR (NPCI-valid, created with our Razorpay
+// account) + a hosted payment link for an invoice. The QR PNG is downloaded and
+// stored as an inline data URL — in-memory only, never uploaded to Cloudinary.
 router.post('/invoices/:id/razorpay', async (req, res) => {
   try {
     if (!razorpay.configured()) {
@@ -143,6 +143,17 @@ router.post('/invoices/:id/razorpay', async (req, res) => {
     };
 
     const results = {};
+    // Dynamic UPI QR via Razorpay QR Codes API.
+    try {
+      const qr = await razorpay.createQrCode({ amount: inv.total, description, referenceId: inv.invoiceNo });
+      inv.rzpQrId = qr.id;
+      // Download the PNG and inline it so it renders in the browser + PDF without CORS.
+      inv.rzpQrImageUrl = await razorpay.fetchQrImageDataUrl(qr.image_url);
+      results.qr = { id: qr.id };
+    } catch (e) {
+      results.qrError = e.response?.data?.error?.description || e.message;
+      logger.warn('razorpay QR create failed', { error: results.qrError });
+    }
     // Payment link.
     try {
       const base = (process.env.PUBLIC_BASE_URL || '').replace(/\/$/, '');

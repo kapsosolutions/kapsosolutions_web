@@ -2,14 +2,9 @@ import { ChangeDetectionStrategy, Component, OnInit, inject, signal } from '@ang
 import { DatePipe, DecimalPipe } from '@angular/common';
 import { ActivatedRoute, RouterLink } from '@angular/router';
 import { HttpErrorResponse } from '@angular/common/http';
-import QRCode from 'qrcode';
 import { AdminApiService, Invoice } from '../admin-api.service';
 
 declare const html2pdf: unknown;
-
-// UPI collect details for the scan-to-pay QR (generated locally, never uploaded anywhere).
-const UPI_ID = '7989909361@upi';
-const UPI_PAYEE = 'Kapso Solutions';
 
 @Component({
   selector: 'app-admin-invoice-view',
@@ -32,7 +27,7 @@ const UPI_PAYEE = 'Kapso Solutions';
         <div class="btns">
           @if (inv()!.status !== 'Paid') {
             <button class="k-btn" (click)="generate()" [disabled]="generating()">
-              <span class="material-icons">link</span> {{ generating() ? 'Generating…' : (inv()!.rzpPaymentLinkUrl ? 'Regenerate payment link' : 'Create payment link') }}
+              <span class="material-icons">qr_code_2</span> {{ generating() ? 'Generating…' : (inv()!.rzpQrImageUrl || inv()!.rzpPaymentLinkUrl ? 'Regenerate payment' : 'Generate Razorpay payment') }}
             </button>
             <button class="k-btn ghost" (click)="refresh()" title="Refresh status"><span class="material-icons">refresh</span></button>
           }
@@ -107,12 +102,11 @@ const UPI_PAYEE = 'Kapso Solutions';
             <div class="qr-box">
               @if (inv()!.status === 'Paid') {
                 <div class="paid-note"><span class="material-icons">check_circle</span> Payment received. Thank you!</div>
-              } @else if (qrDataUrl()) {
-                <img class="qr" [src]="qrDataUrl()" alt="Scan this UPI QR code to pay {{ UPI_PAYEE }} ₹{{ inv()!.total | number: '1.2-2' }}" />
+              } @else if (inv()!.rzpQrImageUrl) {
+                <img class="qr" [src]="inv()!.rzpQrImageUrl" alt="Scan this Razorpay UPI QR to pay ₹{{ inv()!.total | number: '1.2-2' }}" />
                 <div class="scan">SCAN &amp; PAY (UPI)</div>
-                <div class="upi-id">{{ UPI_ID }}</div>
               } @else {
-                <div class="qr-empty">UPI scan-to-pay QR unavailable for a zero-amount invoice.</div>
+                <div class="qr-empty">Generate Razorpay payment to show a scan-to-pay QR here.</div>
               }
             </div>
             <div class="totals">
@@ -178,7 +172,6 @@ const UPI_PAYEE = 'Kapso Solutions';
     .qr-box { display: flex; flex-direction: column; align-items: center; gap: 6px; }
     .qr { width: 150px; height: 150px; object-fit: contain; border: 1px solid #eee; border-radius: 8px; padding: 4px; background: #fff; }
     .scan { font-size: 11px; font-weight: 700; color: #00a84b; letter-spacing: 1px; }
-    .upi-id { font-size: 10px; color: #777; letter-spacing: .3px; }
     .qr-empty { width: 150px; font-size: 11px; color: #aaa; text-align: center; }
     .paid-note { display: flex; align-items: center; gap: 8px; color: #00a84b; font-weight: 700; font-size: 15px; }
     .totals { min-width: 240px; }
@@ -202,11 +195,7 @@ export class AdminInvoiceViewComponent implements OnInit {
   genError = signal('');
   pdfBusy = signal(false);
   copied = signal(false);
-  qrDataUrl = signal('');
   logoUrl = 'https://www.kapsosolutions.com/logo.png';
-
-  readonly UPI_ID = UPI_ID;
-  readonly UPI_PAYEE = UPI_PAYEE;
 
   ngOnInit(): void {
     const id = this.route.snapshot.paramMap.get('id');
@@ -217,24 +206,9 @@ export class AdminInvoiceViewComponent implements OnInit {
   private load(id: string): void {
     this.loading.set(true);
     this.api.getInvoice(id).subscribe({
-      next: (res: { success: boolean; data: Invoice }) => {
-        this.inv.set(res.data);
-        this.loading.set(false);
-        this.buildUpiQr(res.data);
-      },
+      next: (res: { success: boolean; data: Invoice }) => { this.inv.set(res.data); this.loading.set(false); },
       error: () => this.loading.set(false)
     });
-  }
-
-  // Build a scan-to-pay UPI QR locally as a data URL. Nothing is uploaded or persisted.
-  private buildUpiQr(inv: Invoice): void {
-    this.qrDataUrl.set('');
-    if (inv.status === 'Paid' || !(inv.total > 0)) return;
-    const upi = `upi://pay?pa=${encodeURIComponent(UPI_ID)}&pn=${encodeURIComponent(UPI_PAYEE)}`
-      + `&am=${inv.total.toFixed(2)}&cu=INR&tn=${encodeURIComponent(inv.invoiceNo || 'Invoice payment')}`;
-    QRCode.toDataURL(upi, { errorCorrectionLevel: 'M', margin: 1, width: 320 })
-      .then((url: string) => this.qrDataUrl.set(url))
-      .catch(() => this.qrDataUrl.set(''));
   }
 
   refresh(): void { const i = this.inv(); if (i) this.load(i._id); }
@@ -248,11 +222,11 @@ export class AdminInvoiceViewComponent implements OnInit {
       next: (res: { success: boolean; data: Invoice; results: unknown }) => {
         this.generating.set(false);
         this.inv.set(res.data);
-        this.buildUpiQr(res.data);
-        const r = res.results as { linkError?: string };
-        if (r?.linkError) this.genError.set(`Payment link unavailable: ${r.linkError}`);
+        const r = res.results as { qrError?: string; linkError?: string };
+        if (r?.qrError && r?.linkError) this.genError.set(`QR: ${r.qrError} · Link: ${r.linkError}`);
+        else if (r?.qrError) this.genError.set(`QR unavailable (${r.qrError}). Payment link is ready.`);
       },
-      error: (e: HttpErrorResponse) => { this.generating.set(false); this.genError.set(e?.error?.message || 'Could not create payment link'); }
+      error: (e: HttpErrorResponse) => { this.generating.set(false); this.genError.set(e?.error?.message || 'Generation failed'); }
     });
   }
 

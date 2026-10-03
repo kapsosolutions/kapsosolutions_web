@@ -36,6 +36,21 @@ const razorpay = {
     return data;
   },
 
+  // Download the Razorpay QR PNG and return it as an inline base64 data URL.
+  // Done in-memory so the browser can render it without CORS issues and it embeds
+  // cleanly into the generated PDF. Nothing is written to disk or Cloudinary.
+  async fetchQrImageDataUrl(imageUrl) {
+    const { data, headers } = await axios.get(imageUrl, {
+      responseType: 'arraybuffer',
+      maxRedirects: 5,
+      timeout: 20000,
+      headers: { 'User-Agent': 'Mozilla/5.0' }
+    });
+    const contentType = headers['content-type'] || 'image/png';
+    const b64 = Buffer.from(data).toString('base64');
+    return `data:${contentType};base64,${b64}`;
+  },
+
   async closeQrCode(qrId) {
     try {
       await axios.post(`${BASE}/payments/qr_codes/${qrId}/close`, {}, { auth: auth() });
