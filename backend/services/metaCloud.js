@@ -331,6 +331,28 @@ const metaCloud = {
     if (!handle) throw new Error('No header handle returned from Meta upload');
     return handle;
   },
+
+  // Same resumable upload as uploadHeaderSample, but from an in-memory buffer —
+  // used to attach a sample PDF when creating a DOCUMENT-header template.
+  async uploadHeaderSampleBuffer(buffer, { fileName = 'sample', fileType = 'application/pdf' } = {}) {
+    const appId = process.env.WA_APP_ID;
+    const appSecret = process.env.WA_APP_SECRET;
+    if (!appId || !appSecret) throw new Error('WA_APP_ID / WA_APP_SECRET not configured for header upload');
+
+    const appAccessToken = `${appId}|${appSecret}`;
+    const createResp = await axios.post(`${GRAPH()}/${appId}/uploads`, null, {
+      params: { file_name: fileName, file_length: buffer.length, file_type: fileType, access_token: appAccessToken }
+    });
+    const sessionId = createResp.data.id;
+
+    const uploadResp = await axios.post(`${GRAPH()}/${sessionId}`, buffer, {
+      headers: { Authorization: `OAuth ${cfg().token}`, file_offset: '0', 'Content-Type': fileType },
+      maxBodyLength: Infinity, maxContentLength: Infinity
+    });
+    const handle = uploadResp.data?.h;
+    if (!handle) throw new Error('No header handle returned from Meta upload');
+    return handle;
+  },
   async sendTemplate(phone, templateName, { languageCode = 'en_US', headerImageUrl = null, headerDocumentMediaId = null, headerDocumentFilename = 'document.pdf', bodyParams = [] } = {}) {
     const components = [];
     if (headerDocumentMediaId) {
