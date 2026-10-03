@@ -209,6 +209,30 @@ const metaCloud = {
     return data;
   },
 
+  // Upload an in-memory buffer (e.g. a generated PDF) to WhatsApp's /media
+  // endpoint and return its media id. This keeps generated invoices OFF Cloudinary
+  // — the bytes live only on Meta's media store, referenced by id when sending.
+  async uploadMedia(buffer, { mimeType = 'application/pdf', filename = 'file.pdf' } = {}) {
+    const form = new FormData();
+    form.append('messaging_product', 'whatsapp');
+    form.append('type', mimeType);
+    form.append('file', buffer, { filename, contentType: mimeType });
+    const { data } = await api.post(`${base()}/media`, form, {
+      headers: { ...authHeaders(), ...form.getHeaders() },
+      maxContentLength: 20 * 1024 * 1024, maxBodyLength: 20 * 1024 * 1024
+    });
+    return data?.id;
+  },
+
+  // Send a document that was previously uploaded via uploadMedia (by media id).
+  async sendDocumentMedia(phone, mediaId, filename, caption = '') {
+    const { data } = await post({
+      messaging_product: 'whatsapp', to: clean(phone), type: 'document',
+      document: { id: mediaId, filename, ...(caption ? { caption } : {}) }
+    });
+    return data;
+  },
+
   // Download inbound media bytes from Meta (two-step: get URL, then fetch bytes).
   async downloadMedia(mediaId) {
     const meta = await axios.get(`${GRAPH()}/${mediaId}`, { headers: authHeaders() });
@@ -307,9 +331,13 @@ const metaCloud = {
     if (!handle) throw new Error('No header handle returned from Meta upload');
     return handle;
   },
-  async sendTemplate(phone, templateName, { languageCode = 'en_US', headerImageUrl = null, bodyParams = [] } = {}) {
+  async sendTemplate(phone, templateName, { languageCode = 'en_US', headerImageUrl = null, headerDocumentMediaId = null, headerDocumentFilename = 'document.pdf', bodyParams = [] } = {}) {
     const components = [];
-    if (headerImageUrl) components.push({ type: 'header', parameters: [{ type: 'image', image: { link: originalUrl(headerImageUrl) } }] });
+    if (headerDocumentMediaId) {
+      components.push({ type: 'header', parameters: [{ type: 'document', document: { id: headerDocumentMediaId, filename: headerDocumentFilename } }] });
+    } else if (headerImageUrl) {
+      components.push({ type: 'header', parameters: [{ type: 'image', image: { link: originalUrl(headerImageUrl) } }] });
+    }
     if (bodyParams.length) components.push({ type: 'body', parameters: bodyParams.map((t) => ({ type: 'text', text: String(t) })) });
     const { data } = await post({
       messaging_product: 'whatsapp', to: clean(phone), type: 'template',

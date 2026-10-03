@@ -195,7 +195,7 @@ export class AdminInvoiceViewComponent implements OnInit {
   genError = signal('');
   pdfBusy = signal(false);
   copied = signal(false);
-  logoUrl = 'https://www.kapsosolutions.com/logo.png';
+  logoUrl = '/logo2.png';
 
   ngOnInit(): void {
     const id = this.route.snapshot.paramMap.get('id');
@@ -250,14 +250,21 @@ export class AdminInvoiceViewComponent implements OnInit {
       // Size the PDF page to the actual content so there's no trailing blank space.
       const w = el.offsetWidth;
       const h = el.offsetHeight;
-      // @ts-expect-error html2pdf is loaded globally from CDN
-      await html2pdf().set({
+      const opt = {
         margin: 0,
         filename: name,
         image: { type: 'jpeg', quality: 0.98 },
-        html2canvas: { scale: 2, useCORS: true, backgroundColor: '#ffffff' },
-        jsPDF: { unit: 'px', format: [w, h], orientation: 'portrait', hotfixes: ['px_scaling'] }
-      }).from(el).save();
+        html2canvas: { scale: 2, useCORS: true, backgroundColor: '#ffffff', windowWidth: w },
+        jsPDF: { unit: 'px', format: [w, h], orientation: 'portrait', hotfixes: ['px_scaling'] },
+        pagebreak: { mode: 'avoid-all' }
+      };
+      // Render, then drop any trailing blank page a rounding overflow may add.
+      // @ts-expect-error html2pdf is loaded globally from CDN
+      const pdf = await html2pdf().set(opt).from(el).toPdf().get('pdf');
+      while (pdf.internal.getNumberOfPages() > 1) {
+        pdf.deletePage(pdf.internal.getNumberOfPages());
+      }
+      pdf.save(name);
     } catch {
       this.genError.set('Could not generate PDF.');
     } finally {
