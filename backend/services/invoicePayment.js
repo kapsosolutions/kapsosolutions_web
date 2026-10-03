@@ -30,18 +30,9 @@ export async function sendInvoiceReceipt(invoice) {
     logger.warn('receipt PDF build/upload failed', { error: e.response?.data?.error?.message || e.message });
   }
 
-  // 2) Try to send the PDF as a document (works within the 24h window).
-  if (mediaId) {
-    try {
-      const caption = `Payment received for ${invoice.invoiceNo}. Amount: ${money(invoice.total)}. Thank you!`;
-      await metaCloud.sendDocumentMedia(phone, mediaId, fileName, caption);
-      sentSomething = true;
-    } catch (e) {
-      logger.warn('receipt document send failed', { error: e.response?.data?.error?.message || e.message });
-    }
-  }
-
-  // 3) Approved template notification (guaranteed outside the 24h window).
+  // Send exactly ONE message. Prefer the approved template (delivers inside and
+  // outside the 24h window and already carries the PDF as its document header).
+  // Only fall back to a plain document if there's no template or it fails.
   const template = process.env.WA_RECEIPT_TEMPLATE;
   if (template) {
     try {
@@ -56,6 +47,18 @@ export async function sendInvoiceReceipt(invoice) {
       sentSomething = true;
     } catch (e) {
       logger.warn('receipt template send failed', { error: e.response?.data?.error?.message || e.message });
+    }
+  }
+
+  // Fallback: send the PDF as a plain document (works within the 24h window)
+  // only if the template wasn't sent.
+  if (!sentSomething && mediaId) {
+    try {
+      const caption = `Payment received for ${invoice.invoiceNo}. Amount: ${money(invoice.total)}. Thank you!`;
+      await metaCloud.sendDocumentMedia(phone, mediaId, fileName, caption);
+      sentSomething = true;
+    } catch (e) {
+      logger.warn('receipt document send failed', { error: e.response?.data?.error?.message || e.message });
     }
   }
 
