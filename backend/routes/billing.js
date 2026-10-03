@@ -123,7 +123,9 @@ router.delete('/invoices/:id', async (req, res) => {
   res.json({ success: true, message: 'Deleted' });
 });
 
-// Generate Razorpay dynamic UPI QR + payment link for an invoice.
+// Generate a Razorpay hosted payment link for an invoice.
+// Note: the scan-to-pay UPI QR is generated locally in the browser from the
+// invoice total/UPI id — it is never created via Razorpay, uploaded, or persisted.
 router.post('/invoices/:id/razorpay', async (req, res) => {
   try {
     if (!razorpay.configured()) {
@@ -141,16 +143,6 @@ router.post('/invoices/:id/razorpay', async (req, res) => {
     };
 
     const results = {};
-    // QR code (optional — some accounts don't have QR Codes enabled).
-    try {
-      const qr = await razorpay.createQrCode({ amount: inv.total, description, referenceId: inv.invoiceNo });
-      inv.rzpQrId = qr.id;
-      inv.rzpQrImageUrl = qr.image_url;
-      results.qr = { id: qr.id, imageUrl: qr.image_url };
-    } catch (e) {
-      results.qrError = e.response?.data?.error?.description || e.message;
-      logger.warn('razorpay QR create failed', { error: results.qrError });
-    }
     // Payment link.
     try {
       const base = (process.env.PUBLIC_BASE_URL || '').replace(/\/$/, '');
