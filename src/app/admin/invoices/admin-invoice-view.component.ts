@@ -168,11 +168,11 @@ declare const html2pdf: unknown;
     table.items td { padding: 10px 12px; border-bottom: 1px solid #eee; font-size: 13px; vertical-align: top; }
     .it-title { font-weight: 600; }
     .it-det { font-size: 11px; color: #888; }
-    .summary { display: flex; justify-content: space-between; gap: 24px; margin-bottom: 22px; }
-    .qr-box { display: flex; flex-direction: column; align-items: center; gap: 6px; }
-    .qr { width: 150px; height: 150px; object-fit: contain; border: 1px solid #eee; border-radius: 8px; padding: 4px; background: #fff; }
-    .scan { font-size: 11px; font-weight: 700; color: #00a84b; letter-spacing: 1px; }
-    .qr-empty { width: 150px; font-size: 11px; color: #aaa; text-align: center; }
+    .summary { display: flex; justify-content: space-between; align-items: flex-start; gap: 24px; margin-bottom: 22px; }
+    .qr-box { display: flex; flex-direction: column; align-items: center; gap: 8px; }
+    .qr { width: 260px; max-width: 100%; height: auto; display: block; }
+    .scan { font-size: 12px; font-weight: 700; color: #00a84b; letter-spacing: 1px; }
+    .qr-empty { width: 180px; font-size: 11px; color: #aaa; text-align: center; }
     .paid-note { display: flex; align-items: center; gap: 8px; color: #00a84b; font-weight: 700; font-size: 15px; }
     .totals { min-width: 240px; }
     .tr { display: flex; justify-content: space-between; padding: 8px 0; font-size: 14px; border-bottom: 1px solid #eee; }
@@ -244,21 +244,38 @@ export class AdminInvoiceViewComponent implements OnInit {
     this.pdfBusy.set(true);
     try {
       await this.ensureHtml2Pdf();
+      await this.waitForImages(el);
       const inv = this.inv();
       const name = `${inv?.status === 'Paid' ? 'receipt' : 'invoice'}-${inv?.invoiceNo || 'document'}.pdf`;
+      // Size the PDF page to the actual content so there's no trailing blank space.
+      const w = el.offsetWidth;
+      const h = el.offsetHeight;
       // @ts-expect-error html2pdf is loaded globally from CDN
       await html2pdf().set({
         margin: 0,
         filename: name,
         image: { type: 'jpeg', quality: 0.98 },
         html2canvas: { scale: 2, useCORS: true, backgroundColor: '#ffffff' },
-        jsPDF: { unit: 'pt', format: 'a4', orientation: 'portrait' }
+        jsPDF: { unit: 'px', format: [w, h], orientation: 'portrait', hotfixes: ['px_scaling'] }
       }).from(el).save();
     } catch {
       this.genError.set('Could not generate PDF.');
     } finally {
       this.pdfBusy.set(false);
     }
+  }
+
+  // Ensure every image inside the element has fully decoded before capturing,
+  // otherwise html2canvas may snapshot a blank QR.
+  private waitForImages(el: HTMLElement): Promise<void[]> {
+    const imgs = Array.from(el.querySelectorAll('img'));
+    return Promise.all(imgs.map((img) => {
+      if (img.complete && img.naturalWidth > 0) return Promise.resolve();
+      return new Promise<void>((resolve) => {
+        img.addEventListener('load', () => resolve(), { once: true });
+        img.addEventListener('error', () => resolve(), { once: true });
+      });
+    }));
   }
 
   private ensureHtml2Pdf(): Promise<void> {

@@ -79,6 +79,16 @@ router.get('/invoices', async (_req, res) => {
 router.get('/invoices/:id', async (req, res) => {
   const inv = await Invoice.findById(req.params.id).populate('client');
   if (!inv) return res.status(404).json({ success: false, message: 'Not found' });
+  // Auto-heal older invoices that stored Razorpay's cross-origin hosted QR URL:
+  // inline it as a data URL so it renders in the browser and embeds into the PDF.
+  if (inv.rzpQrImageUrl && /^https?:\/\//i.test(inv.rzpQrImageUrl)) {
+    try {
+      inv.rzpQrImageUrl = await razorpay.fetchQrImageDataUrl(inv.rzpQrImageUrl);
+      await inv.save();
+    } catch (e) {
+      logger.debug('QR inline refresh failed', { error: e.message });
+    }
+  }
   res.json({ success: true, data: inv });
 });
 
