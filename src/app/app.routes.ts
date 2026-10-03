@@ -23,7 +23,11 @@ export const routes: Routes = [
       { path: 'flow-images', loadComponent: () => import('./admin/flow-images/admin-flow-images.component').then(m => m.AdminFlowImagesComponent) },
       { path: 'demos', loadComponent: () => import('./admin/demos/admin-demos.component').then(m => m.AdminDemosComponent) },
       { path: 'demos/:id', loadComponent: () => import('./admin/demos/admin-demo-detail.component').then(m => m.AdminDemoDetailComponent) },
-      { path: 'crm', loadComponent: () => import('./admin/crm/admin-crm.component').then(m => m.AdminCrmComponent) }
+      { path: 'crm', loadComponent: () => import('./admin/crm/admin-crm.component').then(m => m.AdminCrmComponent) },
+      { path: 'clients', loadComponent: () => import('./admin/clients/admin-clients.component').then(m => m.AdminClientsComponent) },
+      { path: 'invoices', loadComponent: () => import('./admin/invoices/admin-invoices.component').then(m => m.AdminInvoicesComponent) },
+      { path: 'invoices/new', loadComponent: () => import('./admin/invoices/admin-invoice-builder.component').then(m => m.AdminInvoiceBuilderComponent) },
+      { path: 'invoices/:id', loadComponent: () => import('./admin/invoices/admin-invoice-view.component').then(m => m.AdminInvoiceViewComponent) }
     ]
   },
 

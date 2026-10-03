@@ -16,6 +16,8 @@ import webhookRouter from './routes/webhook.js';
 import flowEndpointRouter from './routes/flowEndpoint.js';
 import adminRouter from './routes/admin.js';
 import crmRouter from './routes/crm.js';
+import billingRouter from './routes/billing.js';
+import razorpayWebhookRouter from './routes/razorpayWebhook.js';
 import publicRouter from './routes/public.js';
 
 const __filename = fileURLToPath(import.meta.url);
@@ -100,6 +102,8 @@ app.use('/api/whatsapp/flow-endpoint', flowEndpointRouter);
 // ---------------- Admin + CRM + Public ----------------
 app.use('/api/admin', adminRouter);
 app.use('/api/crm', crmRouter);
+app.use('/api/billing', billingRouter);
+app.use('/api/razorpay', razorpayWebhookRouter);
 app.use('/api', publicRouter);
 
 server.listen(PORT, () => {

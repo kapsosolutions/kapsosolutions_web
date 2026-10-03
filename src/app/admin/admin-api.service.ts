@@ -84,6 +84,53 @@ export interface ChatMessage {
   raw?: { outbound?: OutboundDescriptor; media?: MediaInfo };
 }
 
+export interface Client {
+  _id: string;
+  businessName: string;
+  whatsapp: string;
+  phone: string;
+  email: string;
+  category: string;
+  address: string;
+  setupCost: number;
+  monthlyCharge: number;
+  notes: string;
+  createdAt: string;
+}
+
+export interface InvoiceItem {
+  title: string;
+  details: string;
+  hsn: string;
+  amount: number;
+}
+
+export interface Invoice {
+  _id: string;
+  invoiceNo: string;
+  docType: string;
+  client?: string | { _id: string; businessName: string; whatsapp: string };
+  billTo: { businessName: string; address: string; whatsapp: string; email: string };
+  date: string;
+  dueDate: string;
+  terms: string;
+  items: InvoiceItem[];
+  taxType: string;
+  taxRate: number;
+  subtotal: number;
+  taxAmount: number;
+  total: number;
+  termsList: string[];
+  rzpQrId: string;
+  rzpQrImageUrl: string;
+  rzpPaymentLinkId: string;
+  rzpPaymentLinkUrl: string;
+  rzpPaymentId?: string;
+  status: 'Draft' | 'Sent' | 'Paid';
+  paidAt?: string;
+  createdAt: string;
+}
+
 @Injectable({ providedIn: 'root' })
 export class AdminApiService {
   private http = inject(HttpClient);
@@ -225,6 +272,39 @@ export class AdminApiService {
       `${API_BASE}/api/crm/send-template`,
       { phone, templateName, languageCode },
       { headers: this.authHeaders() }
+    );
+  }
+
+  // ---------- Clients ----------
+  getClients(): Observable<{ success: boolean; data: Client[] }> {
+    return this.http.get<{ success: boolean; data: Client[] }>(`${API_BASE}/api/billing/clients`, { headers: this.authHeaders() });
+  }
+  createClient(body: Partial<Client>): Observable<{ success: boolean; data: Client }> {
+    return this.http.post<{ success: boolean; data: Client }>(`${API_BASE}/api/billing/clients`, body, { headers: this.authHeaders() });
+  }
+  updateClient(id: string, body: Partial<Client>): Observable<{ success: boolean; data: Client }> {
+    return this.http.put<{ success: boolean; data: Client }>(`${API_BASE}/api/billing/clients/${id}`, body, { headers: this.authHeaders() });
+  }
+  deleteClient(id: string): Observable<{ success: boolean }> {
+    return this.http.delete<{ success: boolean }>(`${API_BASE}/api/billing/clients/${id}`, { headers: this.authHeaders() });
+  }
+
+  // ---------- Invoices ----------
+  getInvoices(): Observable<{ success: boolean; data: Invoice[] }> {
+    return this.http.get<{ success: boolean; data: Invoice[] }>(`${API_BASE}/api/billing/invoices`, { headers: this.authHeaders() });
+  }
+  getInvoice(id: string): Observable<{ success: boolean; data: Invoice }> {
+    return this.http.get<{ success: boolean; data: Invoice }>(`${API_BASE}/api/billing/invoices/${id}`, { headers: this.authHeaders() });
+  }
+  createInvoice(body: Partial<Invoice>): Observable<{ success: boolean; data: Invoice }> {
+    return this.http.post<{ success: boolean; data: Invoice }>(`${API_BASE}/api/billing/invoices`, body, { headers: this.authHeaders() });
+  }
+  deleteInvoice(id: string): Observable<{ success: boolean }> {
+    return this.http.delete<{ success: boolean }>(`${API_BASE}/api/billing/invoices/${id}`, { headers: this.authHeaders() });
+  }
+  generateRazorpay(id: string): Observable<{ success: boolean; data: Invoice; results: unknown }> {
+    return this.http.post<{ success: boolean; data: Invoice; results: unknown }>(
+      `${API_BASE}/api/billing/invoices/${id}/razorpay`, {}, { headers: this.authHeaders() }
     );
   }
 

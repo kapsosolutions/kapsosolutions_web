@@ -25,6 +25,12 @@ import { AdminApiService } from '../admin-api.service';
           <a routerLink="demos" routerLinkActive="active" (click)="close()">
             <span class="material-icons">event_available</span> Demo Leads
           </a>
+          <a routerLink="clients" routerLinkActive="active" (click)="close()">
+            <span class="material-icons">groups</span> Clients
+          </a>
+          <a routerLink="invoices" routerLinkActive="active" (click)="close()">
+            <span class="material-icons">receipt_long</span> Invoices
+          </a>
           <a routerLink="categories" routerLinkActive="active" (click)="close()">
             <span class="material-icons">category</span> Categories
           </a>
